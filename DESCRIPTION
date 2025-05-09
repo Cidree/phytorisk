@@ -3,14 +3,19 @@ Type: Package
 Title: What the Package Does (Title Case)
 Version: 0.1.0
 Authors@R: c(
-    person(
-      "Jane", "Doe",
-      email = "jane@example.com",
-      role = c("aut", "cre")
-    )
+    person("Adrián", "Cidre González", , "adrian.cidre@gmail.com", role = c("aut", "cre")),
+    person("Antonio", "Ariza Salamanca", , "antonio41993@gmail.com", role = c("aut", "cre"))
   )
 Description: More about what it does (maybe more than one line).
     Continuation lines should be indented.
-License: What license is it under?
+License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
+Imports: 
+    cli,
+    flowdem (>= 0.2),
+    sf,
+    terra
+Remotes: 
+    KennethTM
+RoxygenNote: 7.3.2
