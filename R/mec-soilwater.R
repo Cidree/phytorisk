@@ -7,6 +7,7 @@
 #' @param dem a single-band \code{SpatRaster} with a digital elevation model
 #' @param poi a single-point \code{sf} object denoting the point of interest
 #' to run the simulations
+#' @param th threshold of flow accumulation to delineate streams
 #' @param quiet if \code{TRUE}, suppress any message or progress bar
 #'
 #' @returns A \code{SpatRaster}
@@ -22,17 +23,19 @@
 #' library(terra)
 #'
 #' ## load data
-#' dem_sr <- rast(system.file("spatial/dem.tiff", package = "riskPC"))
-#' poi_sf <- st_read(system.file("spatial/poi.geojson", package = "riskPC"))
+#' dem_sr <- rast(system.file("spatial/dem_light.tiff", package = "phytorisk"))
+#' poi_sf <- st_read(system.file("spatial/poi.geojson", package = "phytorisk"))
 #'
 #' ## simulate mechanism
 #' mec_soilwater_sr <- mec_soilwater(dem_sr, poi_sf)
-mec_soilwater <- function(dem, poi, quiet = FALSE) {
+mec_soilwater <- function(dem, poi, th = 100, quiet = FALSE) {
 
   ## 0. Check for errors ----------------------
   if (!inherits(dem, "SpatRaster")) cli::cli_abort("`dem` must be a SpatRaster")
   if (!inherits(poi, "sf") | nrow(poi) != 1 | sf::st_geometry_type(poi) != "POINT")
     cli::cli_abort("`poi` must be an sf object with one POINT")
+
+  if (!terra::same.crs(dem, poi)) cli::cli_abort("CRS of inputs is not the same")
 
   ## 1. Flow direction ------------------------
 
@@ -74,7 +77,7 @@ mec_soilwater <- function(dem, poi, quiet = FALSE) {
   ## flow accumulation can be used for stream delineation,
   ## e.g using a threshold of 100 contributing cells (100*100*100 = 1 km2)
   if (!quiet) cli::cli_progress_step("Delineating streams...", "Streams delineated", "Delineating streams failed")
-  dem_streams_sr <- terra::ifel(dem_acc_sr > 100, 1, 0)
+  dem_streams_sr <- terra::ifel(dem_acc_sr > th, 1, 0)
 
   # 3.2. Wet front ------------------------
 
@@ -102,7 +105,11 @@ mec_soilwater <- function(dem, poi, quiet = FALSE) {
 
   ## isolate the pixels that fulfil the condition
   risk_mec_sr <- isolate_pixels(flowdir_poi_sr, dem, init_i, init_j)
-  names(risk_mec_sr) <- "mec_soilwater"
+  terra::crs(risk_mec_sr) <- terra::crs(dem)
+
+  ## append streams for output
+  risk_mec_sr <- c(risk_mec_sr, dem_streams_sr)
+  names(risk_mec_sr) <- c("mec_soilwater", "streams")
 
   ## return results
   return(risk_mec_sr)
