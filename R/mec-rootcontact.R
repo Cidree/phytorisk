@@ -7,7 +7,7 @@
 #' @param treecover a single-band \code{SpatRaster} where 1 represents host
 #' trees, and 0 represents background area
 #' @param aoi a \code{sf} polygon representing the area of interest
-#' @param poi a single-point \code{sf} object denoting the point of interest
+#' @param poi a single-point \code{sf} object denotimecng the point of interest
 #' to run the simulations
 #' @param quiet if \code{TRUE}, suppress any message or progress bar
 #'
@@ -19,18 +19,23 @@
 #'
 #'
 #' @examples
+#' \donttest{
 #' ## load packages
 #' library(sf)
 #' library(terra)
 #'
 #' ## load data
-#' study_area_sf <- st_read(system.file("spatial/tejera.geojson", package = "riskPC"))
-#' poi_sf <- st_read(system.file("spatial/poi.geojson", package = "riskPC"))
-#' trees_sr <- rast(system.file("spatial/trees.tiff", package = "riskPC"))
+#' study_area_sf <- st_read(system.file("spatial/tejera.geojson", package = "phytorisk"))
+#' poi_sf <- st_read(system.file("spatial/poi.geojson", package = "phytorisk"))
+#' trees_sr <- rast(system.file("spatial/trees_light.tiff", package = "phytorisk"))
 #'
 #' ## simulate mechanism
-#' mec_diffusive_sr <- mec_diffusive(trees_sr, study_area_sf, poi_sf)
-mec_diffusive <- function(treecover, aoi, poi, quiet = FALSE) {
+#' mec_rootcontact_sr <- mec_rootcontact(trees_sr, study_area_sf, poi_sf)
+#' }
+mec_rootcontact <- function(treecover, aoi, poi, quiet = FALSE) {
+
+  ## 0. Check for errors ----------------------
+  if (!terra::same.crs(treecover, aoi) | !terra::same.crs(aoi, poi)) cli::cli_abort("CRS of inputs is not the same")
 
   ## 1. Tree cover ------------------
 
@@ -50,7 +55,7 @@ mec_diffusive <- function(treecover, aoi, poi, quiet = FALSE) {
   poi_index   <- terra::rowColFromCell(edges_sr, poi_cell_id)
 
   ## find pixels connected to the POI
-  if (!quiet) cli::cli_progress_step("Finding root-to-root contact...", "Finished", "Finding root-to-toor contact failed")
+  if (!quiet) cli::cli_progress_step("Finding root-to-root contact...", "Finished", "Finding root-to-root contact failed")
   conneted_list <- find_connected(edges_sr, poi_index[1], poi_index[2])
 
   ## create a new binary raster with the connected pixels marked as 1
@@ -61,7 +66,7 @@ mec_diffusive <- function(treecover, aoi, poi, quiet = FALSE) {
   }
 
   ## return results
-  names(risk_mec_sr) <- "mec_diffusive"
+  names(risk_mec_sr) <- "mec_rootcontact"
   return(risk_mec_sr)
 
 
