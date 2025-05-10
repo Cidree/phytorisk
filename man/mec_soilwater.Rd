@@ -4,13 +4,15 @@
 \alias{mec_soilwater}
 \title{Water inoculum movement}
 \usage{
-mec_soilwater(dem, poi, quiet = FALSE)
+mec_soilwater(dem, poi, th = 100, quiet = FALSE)
 }
 \arguments{
 \item{dem}{a single-band \code{SpatRaster} with a digital elevation model}
 
 \item{poi}{a single-point \code{sf} object denoting the point of interest
 to run the simulations}
+
+\item{th}{threshold of flow accumulation to delineate streams}
 
 \item{quiet}{if \code{TRUE}, suppress any message or progress bar}
 }
@@ -29,8 +31,8 @@ library(sf)
 library(terra)
 
 ## load data
-dem_sr <- rast(system.file("spatial/dem.tiff", package = "riskPC"))
-poi_sf <- st_read(system.file("spatial/poi.geojson", package = "riskPC"))
+dem_sr <- rast(system.file("spatial/dem.tiff", package = "phytorisk"))
+poi_sf <- st_read(system.file("spatial/poi.geojson", package = "phytorisk"))
 
 ## simulate mechanism
 mec_soilwater_sr <- mec_soilwater(dem_sr, poi_sf)
