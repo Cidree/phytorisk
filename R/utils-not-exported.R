@@ -169,18 +169,23 @@ find_connected <- function(r, init_i, init_j) {
 
 
 
-## calculate TWI index
-# twi <- function(dem) {
-#   ## get terrain slope
-#   slope <- terrain(dem, opt = "slope")
-#
-#   ## get TWI
-#   twi <- log(1 / slope)
-#
-#   ## use percentile 95 (based on bibliography)
-#   twi_p95 <- quantile(twi, probs = 0.95, na.rm = TRUE)
-#
-#   ## create a binary raster
-#   as.integer(twi > twi_p95)
-#
-# }
+#'  (Internal) Calculates Topographic Water Index
+#'
+#' @param dem a SpatRaster
+#'
+#' @return a SpatRaster
+#' @keywords internal
+twi <- function(dem) {
+  ## get terrain slope
+  slope <- terra::terrain(dem, v = "slope")
+
+  ## get TWI
+  twi <- log(1 / slope)
+
+  ## use percentile 95 (based on bibliography)
+  twi_p95 <- stats::quantile(twi, probs = 0.95, na.rm = TRUE)
+
+  ## create a binary raster
+  terra::as.int(twi > twi_p95)
+
+}
