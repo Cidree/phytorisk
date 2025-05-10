@@ -12,7 +12,7 @@ trees, and 0 represents background area}
 
 \item{aoi}{a \code{sf} polygon representing the area of interest}
 
-\item{poi}{a single-point \code{sf} object denoting the point of interest
+\item{poi}{a single-point \code{sf} object denotimecng the point of interest
 to run the simulations}
 
 \item{quiet}{if \code{TRUE}, suppress any message or progress bar}
@@ -27,6 +27,7 @@ Simulates diffusive inoculum spread through root contact
 To do...
 }
 \examples{
+\donttest{
 ## load packages
 library(sf)
 library(terra)
@@ -34,8 +35,9 @@ library(terra)
 ## load data
 study_area_sf <- st_read(system.file("spatial/tejera.geojson", package = "phytorisk"))
 poi_sf <- st_read(system.file("spatial/poi.geojson", package = "phytorisk"))
-trees_sr <- rast(system.file("spatial/trees.tiff", package = "phytorisk"))
+trees_sr <- rast(system.file("spatial/trees_light.tiff", package = "phytorisk"))
 
 ## simulate mechanism
 mec_rootcontact_sr <- mec_rootcontact(trees_sr, study_area_sf, poi_sf)
+}
 }

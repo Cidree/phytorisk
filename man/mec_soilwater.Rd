@@ -31,7 +31,7 @@ library(sf)
 library(terra)
 
 ## load data
-dem_sr <- rast(system.file("spatial/dem.tiff", package = "phytorisk"))
+dem_sr <- rast(system.file("spatial/dem_light.tiff", package = "phytorisk"))
 poi_sf <- st_read(system.file("spatial/poi.geojson", package = "phytorisk"))
 
 ## simulate mechanism

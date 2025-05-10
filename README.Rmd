@@ -1,0 +1,39 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# phytorisk
+
+<!-- badges: start -->
+[![CRAN status](https://www.r-pkg.org/badges/version/phytorisk)](https://CRAN.R-project.org/package=phytorisk)
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![Codecov test coverage](https://codecov.io/gh/Cidree/phytorisk/graph/badge.svg)](https://app.codecov.io/gh/Cidree/phytorisk)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+<!-- badges: end -->
+
+The goal of phytorisk is to ...
+
+## Installation
+
+You can install the development version of `phytorisk` from [GitHub](https://github.com/) with:
+
+``` r
+# install.packages("pak")
+pak::pak("Cidree/phytorisk")
+```
+
+## Example
+
+TODO
