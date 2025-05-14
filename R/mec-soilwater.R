@@ -14,7 +14,21 @@
 #' @export
 #'
 #' @details
-#' To do...
+#'
+#' This function models inoculum movement in soil, considering flow direction
+#' and altitude under wet and intermediate moisture conditions. It identifies
+#' pixels where flow direction matches or is adjacent to the foci, then processes
+#' connected pixels based on altitude differences. The result is a binary raster
+#' showing the spatial pattern of inoculum dispersal, constrained by topography
+#' and moisture.
+#'
+#' @references
+#'
+#' Ristaino, J., Gumpertz, M., 2000. New Frontiers in the Study of Dispersal and Spatial Analysis of Epidemics Caused by Species in the Genus Phytophthora. Annu. Rev. Phytopathol. 38, 541–576. \doi{10.1146/annurev.phyto.38.1.541}
+#'
+#' Vannini, A., Natili, G., Anselmi, N., Montaghi, A., Vettraino, A.M., 2010. Distribution and gradient analysis of Ink disease in chestnut forests. For. Pathol. 40, 73–86. \doi{10.1111/j.1439-0329.2009.00609.x}
+#'
+#' Vannini, A., Natili, G., Thomidis, T., Belli, C., Morales-Rodriguez, C., 2021. Anthropogenic and landscape features are associated with ink disease impact in Central Italy. For. Pathol. 51, e12722. \doi{10.1111/efp.12722}
 #'
 #'
 #' @examples
@@ -36,6 +50,11 @@ mec_soilwater <- function(dem, poi, th = 100, quiet = FALSE) {
     cli::cli_abort("`poi` must be an sf object with one POINT")
 
   if (!terra::same.crs(dem, poi)) cli::cli_abort("CRS of inputs is not the same")
+
+  if (!requireNamespace("flowdem")) {
+    cli::cli_abort("Package `flowdem` not available. Please install it from {.url https://github.com/KennethTM/flowdem}")
+  }
+
 
   ## 1. Flow direction ------------------------
 

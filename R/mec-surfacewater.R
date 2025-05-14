@@ -8,14 +8,28 @@
 #' @param mec_soilwater the result of \link{mec_soilwater}
 #' @param poi a single-point \code{sf} object denoting the point of interest
 #' to run the simulations
-#' @param buffer a buffer in meters to extent the spread in every direction
+#' @param buffer a buffer in meters to extend the spread in every direction
 #' @param quiet if \code{TRUE}, suppress any message or progress bar
 #'
-#' @returns A \code{SpatRaster}
+#' @returns A list with the surface flow risk (SpatRaster), and the surface
+#' water (sf)
 #' @export
 #'
 #' @details
-#' To do...
+#'
+#' This function models inoculum movement in downslope streams using the natural
+#' drainage network and wetlands. It creates a binary raster for the closest
+#' stream to the foci and selects associated downslope streams. The topographic
+#' water index (TWI) is used as a proxy for soil moisture to identify wetlands,
+#' creating a binary raster for pixels above the 90th percentile of TWI. The
+#' wetland raster is then combined with the stream raster to define potential
+#' areas for inoculum spread.
+#'
+#' @references
+#'
+#' Li, A.Y., Williams, N., Fenwick, S.G., Hardy, G.E.St.J., Adams, P.J., 2014b. Potential for dissemination of Phytophthora cinnamomi by feral pigs via ingestion of infected plant material. Biol. Invasions 16, 765–774. \doi{10.1007/s10530-013-0535-7}
+#'
+#' Ruiz-Gómez, F.J., Pérez-de-Luque, A., Navarro-Cerrillo, R.M., 2019. The involvement of Phytophthora root rot and drought stress in holm oak decline: from ecophysiology to microbiome influence. Curr. For. Rep. 5, 251–266.
 #'
 #'
 #' @examples
@@ -30,8 +44,8 @@
 #'
 #' ## simulate mechanism
 #' mec_soilwater_sr <- mec_soilwater(dem_sr, poi_sf)
-#' mec_surface_sr <- mec_surfaceflow(dem_sr, mec_soilwater_sr, poi_sf)
-mec_surfaceflow <- function(dem, mec_soilwater, poi, buffer = 50, quiet = FALSE) {
+#' mec_surface_sr <- mec_surfacewater(dem_sr, mec_soilwater_sr, poi_sf)
+mec_surfacewater <- function(dem, mec_soilwater, poi, buffer = 50, quiet = FALSE) {
 
   ## 0. Check for errors ----------------------
   if (!terra::same.crs(dem, mec_soilwater) | !terra::same.crs(mec_soilwater, poi)) cli::cli_abort("CRS of inputs is not the same")
@@ -131,8 +145,15 @@ mec_surfaceflow <- function(dem, mec_soilwater, poi, buffer = 50, quiet = FALSE)
   ## crop the raster with the quadrat of the minimum's height coordinate
   risk_mec_sr <- terra::crop(risk_mec_sr, quadrat_bbox)
 
+  ## extend to the study area
+  risk_mec_sr <- terra::extend(risk_mec_sr, mec_soilwater$mec_soilwater, fill = 0)
+
   ## return result
-  names(risk_mec_sr) <- "mec_surfaceflow"
-  return(risk_mec_sr)
+  names(risk_mec_sr) <- "mec_surfacewater"
+  list(
+    mec_surfacewater = risk_mec_sr,
+    surface_water   = sf::st_as_sf(surface_water_vect)
+  )
 
 }
+

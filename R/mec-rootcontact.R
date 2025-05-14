@@ -6,8 +6,9 @@
 #'
 #' @param treecover a single-band \code{SpatRaster} where 1 represents host
 #' trees, and 0 represents background area
-#' @param aoi a \code{sf} polygon representing the area of interest
-#' @param poi a single-point \code{sf} object denotimecng the point of interest
+#' @param aoi a \code{sf} polygon representing the area of interest. Used to mask
+#' the tree cover
+#' @param poi a single-point \code{sf} object denoting the point of interest
 #' to run the simulations
 #' @param quiet if \code{TRUE}, suppress any message or progress bar
 #'
@@ -15,8 +16,19 @@
 #' @export
 #'
 #' @details
-#' To do...
 #'
+#' This function models inoculum movement due to root-to-root contact based on
+#' tree continuity. It calculates vegetation continuity by counting connected
+#' pixels within a 3×3 window. If continuity exists, a new raster is created with
+#' connected pixels marked as 1. The function then identifies all pixels connected
+#' to the foci within the study area. If no direct pixel-to-pixel contact between
+#' trees exists, the infection risk is considered zero.
+#'
+#' @references
+#'
+#' Cardillo, E., Abad, E., Meyer, S., 2021. Iberian oak decline caused by Phytophthora cinnamomi: A spatiotemporal analysis incorporating the effect of host heterogeneities at landscape scale. For. Pathol. 51, e12667. \doi{10.1111/efp.12667}
+#'
+#' Cardillo, E., Acedo, A., Abad, E., 2018. Topographic effects on dispersal patterns of Phytophthora cinnamomi at a stand scale in a Spanish heathland. PloS One 13, e0195060.
 #'
 #' @examples
 #' \donttest{
