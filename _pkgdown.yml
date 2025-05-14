@@ -1,0 +1,35 @@
+url: https://cidree.github.io/phytorisk/
+template:
+  bootstrap: 5
+  bootswatch: minty
+  light-switch: true
+
+reference:
+  - title: "Mechanisms"
+    contents:
+    - mec_rootcontact
+    - mec_soilwater
+    - mec_surfacewater
+    - mec_zoospread
+  - title: "Ensemble"
+    contents:
+    - phytorisk_ensemble
+    - phytorisk_ensemble_raw
+
+navbar:
+  title: "phytorisk"
+  left:
+    - icon: fa-home
+      href: index.html
+    - text: "Reference"
+      href: reference/index.html
+    - text: "News"
+      href: news/index.html
+  structure:
+    right: [search, lightswitch, github]
+  components:
+    github:
+      icon: fa-github
+      href: https://github.com/Cidree/phytorisk
+      aria-label: GitHub
+
