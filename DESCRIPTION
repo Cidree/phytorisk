@@ -4,7 +4,9 @@ Title: What the Package Does (Title Case)
 Version: 0.1.0
 Authors@R: c(
     person("Adrián", "Cidre González", , "adrian.cidre@gmail.com", role = c("aut", "cre")),
-    person("Antonio", "Ariza Salamanca", , "antonio41993@gmail.com", role = c("aut"))
+    person("Antonio", "Ariza Salamanca", , "antonio41993@gmail.com", role = c("aut")),
+    person("Pablo", "González Moreno", , "ir2gomop@uco.es", role = c("aut")),
+    person("Francisco José", "Ruiz Gómez", , "ruizgomezfj@gmail.com", role = c("aut"))
   )
 Description: More about what it does (maybe more than one line).
     Continuation lines should be indented.
@@ -13,9 +15,11 @@ Encoding: UTF-8
 LazyData: true
 Imports: 
     cli,
-    flowdem (>= 0.2),
     sf,
-    terra
-Remotes: 
-    KennethTM
+    terra,
+    withr
+Suggests:
+    flowdem (>= 0.2),
+Config/Needs/website: KennethTM/flowdem
 RoxygenNote: 7.3.2
+Roxygen: list(markdown = TRUE)

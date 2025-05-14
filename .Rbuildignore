@@ -3,3 +3,10 @@
 internal
 ^LICENSE\.md$
 ^README\.Rmd$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^\.github$
+^cran-comments\.md$
+^revdep$
+^CRAN-SUBMISSION$

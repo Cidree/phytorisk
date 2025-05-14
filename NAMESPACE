@@ -2,4 +2,9 @@
 
 export(mec_rootcontact)
 export(mec_soilwater)
-export(mec_surfaceflow)
+export(mec_surfacewater)
+export(mec_zoospread)
+export(phytorisk_ensemble)
+export(phytorisk_ensemble_raw)
+importFrom(stats,aggregate)
+importFrom(stats,runif)

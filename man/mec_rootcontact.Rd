@@ -10,9 +10,10 @@ mec_rootcontact(treecover, aoi, poi, quiet = FALSE)
 \item{treecover}{a single-band \code{SpatRaster} where 1 represents host
 trees, and 0 represents background area}
 
-\item{aoi}{a \code{sf} polygon representing the area of interest}
+\item{aoi}{a \code{sf} polygon representing the area of interest. Used to mask
+the tree cover}
 
-\item{poi}{a single-point \code{sf} object denotimecng the point of interest
+\item{poi}{a single-point \code{sf} object denoting the point of interest
 to run the simulations}
 
 \item{quiet}{if \code{TRUE}, suppress any message or progress bar}
@@ -24,7 +25,12 @@ A \code{SpatRaster}
 Simulates diffusive inoculum spread through root contact
 }
 \details{
-To do...
+This function models inoculum movement due to root-to-root contact based on
+tree continuity. It calculates vegetation continuity by counting connected
+pixels within a 3×3 window. If continuity exists, a new raster is created with
+connected pixels marked as 1. The function then identifies all pixels connected
+to the foci within the study area. If no direct pixel-to-pixel contact between
+trees exists, the infection risk is considered zero.
 }
 \examples{
 \donttest{
@@ -40,4 +46,9 @@ trees_sr <- rast(system.file("spatial/trees_light.tiff", package = "phytorisk"))
 ## simulate mechanism
 mec_rootcontact_sr <- mec_rootcontact(trees_sr, study_area_sf, poi_sf)
 }
+}
+\references{
+Cardillo, E., Abad, E., Meyer, S., 2021. Iberian oak decline caused by Phytophthora cinnamomi: A spatiotemporal analysis incorporating the effect of host heterogeneities at landscape scale. For. Pathol. 51, e12667. \doi{10.1111/efp.12667}
+
+Cardillo, E., Acedo, A., Abad, E., 2018. Topographic effects on dispersal patterns of Phytophthora cinnamomi at a stand scale in a Spanish heathland. PloS One 13, e0195060.
 }
