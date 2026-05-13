@@ -5,8 +5,6 @@
 
 <!-- badges: start -->
 
-[![CRAN
-status](https://www.r-pkg.org/badges/version/phytorisk)](https://CRAN.R-project.org/package=phytorisk)
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 [![License: GPL
@@ -43,7 +41,7 @@ Pc</figcaption>
 
 ## Installation
 
-You can install the last stable version of `phytorisk` from
+You can install the development version of `phytorisk` from
 [GitHub](https://github.com/) with:
 
 ``` r
@@ -51,4 +49,17 @@ You can install the last stable version of `phytorisk` from
 pak::pak("Cidree/phytorisk")
 ```
 
-## 
+### System requirements
+
+`phytorisk` uses compiled code and requires **Rtools** on Windows.
+Download and install it from
+<https://cran.r-project.org/bin/windows/Rtools/>.
+
+### Non-CRAN dependencies
+
+`phytorisk` depends on `flowdem`, which is not available on CRAN and
+must be installed manually beforehand:
+
+``` r
+pak::pak("KennethTM/flowdem")
+```

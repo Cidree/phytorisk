@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 
 <!-- badges: start -->
 
-[![CRAN status](https://www.r-pkg.org/badges/version/phytorisk)](https://CRAN.R-project.org/package=phytorisk) [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 
 <!-- badges: end -->
 
@@ -35,11 +35,22 @@ d)  Inoculum spread in surface water `mec_surfaceflow()`
 
 ## Installation
 
-You can install the last stable version of `phytorisk` from [GitHub](https://github.com/) with:
+You can install the development version of `phytorisk` from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("pak")
 pak::pak("Cidree/phytorisk")
 ```
 
-## 
+### System requirements
+
+`phytorisk` uses compiled code and requires **Rtools** on Windows.
+Download and install it from <https://cran.r-project.org/bin/windows/Rtools/>.
+
+### Non-CRAN dependencies
+
+`phytorisk` depends on `flowdem`, which is not available on CRAN and must be installed manually beforehand:
+
+``` r
+pak::pak("KennethTM/flowdem")
+```
