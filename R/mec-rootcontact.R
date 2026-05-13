@@ -39,8 +39,16 @@
 #' library(terra)
 #'
 #' ## load data
-#' study_area_sf <- read_sf(system.file("spatial/tejera.geojson", package = "phytorisk"))
-#' poi_sf <- read_sf(system.file("spatial/poi.geojson", package = "phytorisk"))
+#' study_area_sf <- st_read(
+#'   system.file("spatial/tejera.geojson", package = "phytorisk"),
+#'   quiet = TRUE
+#' )
+#' 
+#' poi_sf <- st_read(
+#'   system.file("spatial/poi.geojson", package = "phytorisk"),
+#'   quiet = TRUE
+#' )
+#' 
 #' trees_sr <- rast(system.file("spatial/trees_light.tiff", package = "phytorisk"))
 #'
 #' ## simulate mechanism

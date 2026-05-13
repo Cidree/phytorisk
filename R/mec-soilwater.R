@@ -44,7 +44,10 @@
 #'
 #' ## load data
 #' dem_sr <- rast(system.file("spatial/dem_light.tiff", package = "phytorisk"))
-#' poi_sf <- read_sf(system.file("spatial/poi.geojson", package = "phytorisk"))
+#' poi_sf <- st_read(
+#'   system.file("spatial/poi.geojson", package = "phytorisk"),
+#'   quiet = TRUE
+#' )
 #'
 #' ## simulate mechanism
 #' mec_soilwater_sr <- mec_soilwater(dem_sr, poi_sf)

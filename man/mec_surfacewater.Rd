@@ -42,7 +42,10 @@ library(sf)
 library(terra)
 
 ## load data
-poi_sf <- read_sf(system.file("spatial/poi.geojson", package = "phytorisk"))
+poi_sf <- st_read(
+  system.file("spatial/poi.geojson", package = "phytorisk"),
+  quiet = TRUE
+)
 dem_sr <- rast(system.file("spatial/dem_light.tiff", package = "phytorisk"))
 trees_sr <- rast(system.file("spatial/trees_light.tiff", package = "phytorisk"))
 
