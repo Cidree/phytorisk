@@ -22,8 +22,14 @@ navbar:
   left:
     - icon: fa-home
       href: index.html
+    - text: Get Started
+      href: articles/phytorisk.html
     - text: "Reference"
       href: reference/index.html
+    - text: Tutorials
+      menu:
+      - text: Tutorial 1
+        href: articles/tutorial.html
     - text: "News"
       href: news/index.html
   structure:

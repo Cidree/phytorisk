@@ -20,7 +20,10 @@ Imports:
     withr
 Suggests:
     flowdem (>= 0.2),
+    knitr,
+    quarto
 Config/Needs/website: KennethTM/flowdem
 RoxygenNote: 7.3.3
 Roxygen: list(markdown = TRUE)
 URL: https://cidree.github.io/phytorisk/
+VignetteBuilder: quarto

@@ -10,3 +10,7 @@ internal
 ^cran-comments\.md$
 ^revdep$
 ^CRAN-SUBMISSION$
+^vignettes/\.quarto$
+^vignettes/*_files$
+^doc$
+^Meta$

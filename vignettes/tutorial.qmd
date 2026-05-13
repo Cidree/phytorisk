@@ -1,0 +1,19 @@
+---
+title: "Phytorisk Tutorial"
+date: "`r Sys.Date()`"
+vignette: >
+  %\VignetteIndexEntry{Getting started}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+knitr:
+  opts_chunk:
+    collapse: true
+    comment: '#>'
+---
+
+```{r}
+#| label: setup
+library(phytorisk)
+```
+
+Placeholder

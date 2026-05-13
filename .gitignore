@@ -4,3 +4,7 @@
 .Ruserdata
 docs
 internal
+inst/doc
+**/.quarto/
+/doc/
+/Meta/
