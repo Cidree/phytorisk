@@ -1,0 +1,50 @@
+# phytorisk
+
+`phytorisk` is an R package developed to quantify the risk of invasion
+of the oomycete *Phytophthora cinnamomi* Rands (Pc hereafter). Pc is a
+pathogen that infects plant’s roots, and in many cases, kills the host.
+The dispersal of the pathogen depends on multiple factors, which are
+depicted in the next figure:
+
+![Potential mechanisms of dispersal of Pc](reference/figures/Fig1.jpg)
+
+Potential mechanisms of dispersal of Pc
+
+1.  Movement of inoculum in the field due to diffusive root-to-root
+    contact
+    [`mec_rootcontact()`](https://cidree.github.io/phytorisk/reference/mec_rootcontact.md)
+
+2.  Inoculum movement to roots in water particles within soil
+    [`mec_soilwater()`](https://cidree.github.io/phytorisk/reference/mec_soilwater.md)
+
+3.  Dispersion of inoculum by domestic and wild animal movement
+    [`mec_zoospread()`](https://cidree.github.io/phytorisk/reference/mec_zoospread.md)
+
+4.  Inoculum spread in surface water `mec_surfaceflow()`
+
+## Installation
+
+You can install the development version of `phytorisk` from
+[GitHub](https://github.com/) with:
+
+``` r
+
+# install.packages("pak")
+pak::pak("Cidree/phytorisk")
+```
+
+### System requirements
+
+`phytorisk` uses compiled code and requires **Rtools** on Windows.
+Download and install it from
+<https://cran.r-project.org/bin/windows/Rtools/>.
+
+### Non-CRAN dependencies
+
+`phytorisk` depends on `flowdem`, which is not available on CRAN and
+must be installed manually beforehand:
+
+``` r
+
+pak::pak("KennethTM/flowdem")
+```
