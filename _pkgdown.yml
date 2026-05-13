@@ -3,6 +3,7 @@ template:
   bootstrap: 5
   bootswatch: minty
   light-switch: true
+  math-rendering: mathjax
 
 reference:
   - title: "Mechanisms"
