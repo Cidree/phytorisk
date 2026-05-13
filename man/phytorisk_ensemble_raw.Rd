@@ -18,30 +18,31 @@ phytorisk_ensemble_raw(
 )
 }
 \arguments{
-\item{aoi}{a \code{sf} polygon representing the area of interest. Used to mask
+\item{aoi}{A \code{sf} polygon representing the area of interest. Used to mask
 the tree cover}
 
-\item{poi}{a single-point \code{sf} object denoting the point of interest
+\item{poi}{A single-point \code{sf} object denoting the point of interest
 to run the simulations}
 
-\item{dem}{a single-band \code{SpatRaster} with a digital elevation model}
+\item{dem}{A single-band \code{SpatRaster} with a digital elevation model}
 
-\item{treecover}{a single-band \code{SpatRaster} where 1 represents host
+\item{treecover}{A single-band \code{SpatRaster} where 1 represents host
 trees, and 0 represents background area}
 
 \item{weights}{weights of the ensemble model. The default uses the same
 weights for each model. The argument accepts a numeric vector with the
 corresponding weights. See \link{phytorisk_ensemble}}
 
-\item{th}{threshold of flow accumulation to delineate streams}
+\item{th}{Threshold of flow accumulation to delineate streams}
 
-\item{buffer}{a buffer in meters to extend the spread in every direction}
+\item{buffer}{A buffer in meters to extend the spread in every direction}
 
 \item{include_zoospread}{logical. Whether to include the optional module of \link{mec_zoospread}}
 
 \item{...}{arguments passed to \link{mec_zoospread}}
 
-\item{quiet}{if \code{TRUE}, suppress any message or progress bar}
+\item{quiet}{A logical value. If \code{TRUE}, suppresses any informational messages.
+Defaults to \code{FALSE}.}
 }
 \value{
 A \code{SpatRaster}
@@ -50,5 +51,5 @@ A \code{SpatRaster}
 Calculates Phytophthora cinnamomi's ensemble risk from raw data
 }
 \details{
-TO DO
+#TODO
 }

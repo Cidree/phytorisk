@@ -13,15 +13,15 @@ phytorisk_ensemble(
 )
 }
 \arguments{
-\item{mec_soilwater}{the result of \link{mec_soilwater}}
+\item{mec_soilwater}{The result of \link{mec_soilwater}}
 
-\item{mec_rootcontact}{the result of \link{mec_rootcontact}}
+\item{mec_rootcontact}{The result of \link{mec_rootcontact}}
 
-\item{mec_surfacewater}{the result of \link{mec_surfacewater}}
+\item{mec_surfacewater}{The result of \link{mec_surfacewater}}
 
-\item{mec_zoospread}{optional module. The result of \link{mec_zoospread}}
+\item{mec_zoospread}{Optional module. The result of \link{mec_zoospread}}
 
-\item{weights}{weights of the ensemble model. The default uses the same
+\item{weights}{Weights of the ensemble model. The default uses the same
 weights for each model. The argument accepts a numeric vector with the
 corresponding weights. See \emph{Details}}
 }
@@ -32,14 +32,15 @@ A \code{SpatRaster}
 Calculates Phytophthora cinnamomi's ensemble risk from mechanisms
 }
 \details{
-This function calculates the ensemble risk as the weighted sum of the individual
-risk models as follows:
+This function calculates the ensemble risk as the weighted sum of
+the individual risk models as follows:
 
 \eqn{Risk = w_1 \cdot Mec_{soilwater} + w_2 \cdot Mec_{rootcontact} + w_3 \cdot Mec_{mec_surfacewater} + w_4  \cdot Mec_{zoospread}}.
 
-Being \eqn{w_i = 0.25} when \link{mec_zoospread} is not null, and \eqn{w_i = \frac{1}{3}} when \link{mec_zoospread} is null.
-Additionally, the user can specify a numeric vector of length 3 or 4 specifying the desired weights based
-on expert criteria.
+Being \eqn{w_i = 0.25} when \link{mec_zoospread} is not null, and
+\eqn{w_i = \frac{1}{3}} when \link{mec_zoospread} is null.
+Additionally, the user can specify a numeric vector of length
+3 or 4 specifying the desired weights based on expert criteria.
 }
 \examples{
 ## TODO

@@ -17,25 +17,27 @@ mec_zoospread(
 )
 }
 \arguments{
-\item{aoi}{a \code{sf} polygon representing the area of interest}
+\item{aoi}{A \code{sf} polygon representing the area of interest. Used to mask
+the tree cover}
 
-\item{poi}{a single-point \code{sf} object denoting the point of interest
+\item{poi}{A single-point \code{sf} object denoting the point of interest
 to run the simulations}
 
-\item{mec_surface}{the result of \link{mec_surfacewater}}
+\item{mec_surface}{The result of \link{mec_surfacewater}}
 
-\item{n_animals}{number of animals}
+\item{n_animals}{Number of simulated animals}
 
-\item{n_steps}{number of steps of each animal for the simulations}
+\item{n_steps}{Number of steps of each animal for the simulations}
 
-\item{pixel_size}{size of the movement in pixels}
+\item{pixel_size}{Size of the movement in pixels}
 
-\item{n_iter}{number of random iterations for each animal}
+\item{n_iter}{Number of random iterations for each animal}
 
-\item{dist}{filter trajectories less than the specified meters away of the
+\item{dist}{Filter trajectories less than the specified meters away of the
 POI (susceptible to inoculum)}
 
-\item{quiet}{if \code{TRUE}, suppress any message or progress bar}
+\item{quiet}{A logical value. If \code{TRUE}, suppresses any informational messages.
+Defaults to \code{FALSE}.}
 }
 \value{
 A \code{SpatRaster}
@@ -57,9 +59,15 @@ parameters, such as the number of animals and steps, are set at the start.
 # TODO
 }
 \references{
-Kliejunas, J.T., Ko, W.H., 1976. Dispersal of Phytophthora cinnamomi on the island of Hawaii. Phytopathology 66, 457–460.
+Kliejunas, J.T., Ko, W.H., 1976. Dispersal of Phytophthora cinnamomi on
+the island of Hawaii. Phytopathology 66, 457–460.
 
-Li, A.Y., Williams, N., Fenwick, S.G., Hardy, G.E.St.J., Adams, P.J., 2014b. Potential for dissemination of Phytophthora cinnamomi by feral pigs via ingestion of infected plant material. Biol. Invasions 16, 765–774. \doi{10.1007/s10530-013-0535-7}
+Li, A.Y., Williams, N., Fenwick, S.G., Hardy, G.E.St.J., Adams, P.J.,
+2014b. Potential for dissemination of Phytophthora cinnamomi by feral
+pigs via ingestion of infected plant material. Biol. Invasions 16,
+765–774. \doi{10.1007/s10530-013-0535-7}
 
-Cardillo, E., Acedo, A., Abad, E., 2018. Topographic effects on dispersal patterns of Phytophthora cinnamomi at a stand scale in a Spanish heathland. PloS One 13, e0195060.
+Cardillo, E., Acedo, A., Abad, E., 2018. Topographic effects on dispersal
+patterns of Phytophthora cinnamomi at a stand scale in a Spanish heathland.
+PloS One 13, e0195060.
 }

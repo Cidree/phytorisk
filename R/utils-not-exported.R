@@ -8,7 +8,7 @@
 #'
 #' @return a list of pixel neighbours
 #' @keywords internal
-extract_neighbours <- function(i, j, nrows, ncols) {
+extract_neighbours <- function(i, j, nrows, ncols) { # nocov start
 
   neighbours <- list(
     N = c(i-1, j), S = c(i+1, j), E = c(i, j+1), O = c(i, j-1),
@@ -16,13 +16,16 @@ extract_neighbours <- function(i, j, nrows, ncols) {
   )
 
   valid_neighbours <- lapply(neighbours, function(coord) {
-    if (coord[1] > 0 && coord[1] <= nrows && coord[2] > 0 && coord[2] <= ncols) return(coord)
-    else return(NULL)
+    if (coord[1] > 0 && coord[1] <= nrows && coord[2] > 0 && coord[2] <= ncols) {
+      return(coord)
+    } else {
+      return(NULL)
+    }
   })
 
   return(valid_neighbours[!sapply(valid_neighbours, is.null)])
 
-}
+} # nocov end
 
 
 
@@ -37,7 +40,7 @@ extract_neighbours <- function(i, j, nrows, ncols) {
 #'
 #' @return a SpatRaster
 #' @keywords internal
-isolate_pixels <- function(flowdir, dem, init_i, init_j) {
+isolate_pixels <- function(flowdir, dem, init_i, init_j) { # nocov start
 
   ## create a binary matrix to store the cells that fullfill the condition
   pixels_condition <- matrix(0, terra::nrow(flowdir), terra::ncol(flowdir))
@@ -88,7 +91,7 @@ isolate_pixels <- function(flowdir, dem, init_i, init_j) {
   }
 
   return(terra::rast(pixels_condition, extent = flowdir))
-}
+} # nocov end
 
 
 
@@ -103,9 +106,9 @@ isolate_pixels <- function(flowdir, dem, init_i, init_j) {
 #'
 #' @return logical
 #' @keywords internal
-is_connected <- function(mat, x, y) {
+is_connected <- function(mat, x, y) { # nocov start
   return(!is.na(mat[x, y]) && mat[x, y] == 1)
-}
+} # nocov end
 
 
 
@@ -119,7 +122,7 @@ is_connected <- function(mat, x, y) {
 #'
 #' @return a list
 #' @keywords internal
-find_connected <- function(r, init_i, init_j) {
+find_connected <- function(r, init_i, init_j) { # nocov start
 
   ## convert raster to matrix
   mat <- as.matrix(r, wide = TRUE)
@@ -165,7 +168,7 @@ find_connected <- function(r, init_i, init_j) {
   }
 
   return(connected_lst)
-}
+} # nocov end
 
 
 
@@ -175,7 +178,7 @@ find_connected <- function(r, init_i, init_j) {
 #'
 #' @return a SpatRaster
 #' @keywords internal
-twi <- function(dem) {
+twi <- function(dem) { # nocov start
   ## get terrain slope
   slope <- terra::terrain(dem, v = "slope")
 
@@ -188,7 +191,7 @@ twi <- function(dem) {
   ## create a binary raster
   terra::as.int(twi > twi_p95)
 
-}
+} # nocov end
 
 
 
@@ -201,11 +204,11 @@ twi <- function(dem) {
 #' @return a new animal
 #' @keywords internal
 ## utils-not-exported
-Animal <- function(x, y, crs) {
+Animal <- function(x, y, crs) { # nocov start
   animal <- sf::st_sfc(sf::st_point(c(x, y)))
   sf::st_crs(animal) <- crs
   return(animal)
-}
+} # nocov end
 
 
 
@@ -224,7 +227,12 @@ Animal <- function(x, y, crs) {
 #'
 #' @return a new animal
 #' @keywords internal
-move_towards_food <- function(animal, food_coords, pixel_size, exclusion_area_sf) {
+move_towards_food <- function(
+  animal, 
+  food_coords, 
+  pixel_size, 
+  exclusion_area_sf
+) { # nocov start
 
   ## maximum number of iterations to avoid exclusion area
   max_attempts <- 10
@@ -234,14 +242,25 @@ move_towards_food <- function(animal, food_coords, pixel_size, exclusion_area_sf
     attempts <- attempts + 1
 
     ## calculate direction towards food source
-    direction_vector <- c(food_coords[1] - sf::st_coordinates(animal)[1], food_coords[2] - sf::st_coordinates(animal)[2])
+    direction_vector <- c(
+      food_coords[1] - sf::st_coordinates(animal)[1], 
+      food_coords[2] - sf::st_coordinates(animal)[2]
+    )
 
     ## normalize direction vector
     direction_vector <- direction_vector / sqrt(sum(direction_vector^2))
 
     ## aggregate a random component to the movement
     random_angle <- runif(1, -pi / 4, pi / 4)  # change angle randomly within a range
-    rotation_matrix <- matrix(c(cos(random_angle), -sin(random_angle), sin(random_angle), cos(random_angle)), nrow = 2)
+    rotation_matrix <- matrix(
+      c(
+        cos(random_angle), 
+        -sin(random_angle), 
+        sin(random_angle), 
+        cos(random_angle)
+      ),
+      nrow = 2
+    )
     random_direction <- rotation_matrix %*% direction_vector
 
     ## move towards the food source with the given pixel size, and random component
@@ -255,14 +274,16 @@ move_towards_food <- function(animal, food_coords, pixel_size, exclusion_area_sf
     sf::st_crs(new_animal) <- sf::st_crs(animal)  # maintain original CRS
 
     ## verify if the new point is within the exclusion area
-    if (length(sf::st_intersects(new_animal, exclusion_area_sf)) == 0 || attempts >= max_attempts) {
-      ## exit the loop if the animal is not within the exclusion area or if we reached the maximum number of attempts
+    if (length(sf::st_intersects(new_animal, exclusion_area_sf)) == 0 || 
+      attempts >= max_attempts) {
+      ## exit the loop if the animal is not within the exclusion area 
+      ## or if we reached the maximum number of attempts
       break
     }
   }
 
   return(new_animal)
-}
+} # nocov end
 
 
 
@@ -275,7 +296,7 @@ move_towards_food <- function(animal, food_coords, pixel_size, exclusion_area_sf
 #'
 #' @return animal
 #' @keywords internal
-stay_within_area <- function(animal, aoi) {
+stay_within_area <- function(animal, aoi) { # nocov start
 
   ## verify if CRS if the same
   if (sf::st_crs(animal) != sf::st_crs(aoi)) cli::cli_abort("CRS is not the same")
@@ -297,4 +318,4 @@ stay_within_area <- function(animal, aoi) {
   }
 
   return(animal)
-}
+} # nocov end

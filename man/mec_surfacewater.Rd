@@ -7,16 +7,17 @@
 mec_surfacewater(dem, mec_soilwater, poi, buffer = 50, quiet = FALSE)
 }
 \arguments{
-\item{dem}{a single-band \code{SpatRaster} with a digital elevation model}
+\item{dem}{A single-band \code{SpatRaster} with a digital elevation model}
 
-\item{mec_soilwater}{the result of \link{mec_soilwater}}
+\item{mec_soilwater}{The result of \link{mec_soilwater}}
 
-\item{poi}{a single-point \code{sf} object denoting the point of interest
+\item{poi}{A single-point \code{sf} object denoting the point of interest
 to run the simulations}
 
-\item{buffer}{a buffer in meters to extend the spread in every direction}
+\item{buffer}{A buffer in meters to extend the spread in every direction}
 
-\item{quiet}{if \code{TRUE}, suppress any message or progress bar}
+\item{quiet}{A logical value. If \code{TRUE}, suppresses any informational messages.
+Defaults to \code{FALSE}.}
 }
 \value{
 A list with the surface flow risk (SpatRaster), and the surface
@@ -36,11 +37,12 @@ areas for inoculum spread.
 }
 \examples{
 ## load packages
+library(phytorisk)
 library(sf)
 library(terra)
 
 ## load data
-poi_sf <- st_read(system.file("spatial/poi.geojson", package = "phytorisk"))
+poi_sf <- read_sf(system.file("spatial/poi.geojson", package = "phytorisk"))
 dem_sr <- rast(system.file("spatial/dem_light.tiff", package = "phytorisk"))
 trees_sr <- rast(system.file("spatial/trees_light.tiff", package = "phytorisk"))
 
@@ -49,7 +51,12 @@ mec_soilwater_sr <- mec_soilwater(dem_sr, poi_sf)
 mec_surface_sr <- mec_surfacewater(dem_sr, mec_soilwater_sr, poi_sf)
 }
 \references{
-Li, A.Y., Williams, N., Fenwick, S.G., Hardy, G.E.St.J., Adams, P.J., 2014b. Potential for dissemination of Phytophthora cinnamomi by feral pigs via ingestion of infected plant material. Biol. Invasions 16, 765–774. \doi{10.1007/s10530-013-0535-7}
+Li, A.Y., Williams, N., Fenwick, S.G., Hardy, G.E.St.J., Adams, P.J., 2014b.
+Potential for dissemination of Phytophthora cinnamomi by feral pigs via
+ingestion of infected plant material. Biol. Invasions 16, 765–774.
+\doi{10.1007/s10530-013-0535-7}
 
-Ruiz-Gómez, F.J., Pérez-de-Luque, A., Navarro-Cerrillo, R.M., 2019. The involvement of Phytophthora root rot and drought stress in holm oak decline: from ecophysiology to microbiome influence. Curr. For. Rep. 5, 251–266.
+Ruiz-Gómez, F.J., Pérez-de-Luque, A., Navarro-Cerrillo, R.M., 2019. The
+involvement of Phytophthora root rot and drought stress in holm oak decline:
+from ecophysiology to microbiome influence. Curr. For. Rep. 5, 251–266.
 }

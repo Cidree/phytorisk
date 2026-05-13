@@ -7,16 +7,17 @@
 mec_rootcontact(treecover, aoi, poi, quiet = FALSE)
 }
 \arguments{
-\item{treecover}{a single-band \code{SpatRaster} where 1 represents host
+\item{treecover}{A single-band \code{SpatRaster} where 1 represents host
 trees, and 0 represents background area}
 
-\item{aoi}{a \code{sf} polygon representing the area of interest. Used to mask
+\item{aoi}{A \code{sf} polygon representing the area of interest. Used to mask
 the tree cover}
 
-\item{poi}{a single-point \code{sf} object denoting the point of interest
+\item{poi}{A single-point \code{sf} object denoting the point of interest
 to run the simulations}
 
-\item{quiet}{if \code{TRUE}, suppress any message or progress bar}
+\item{quiet}{A logical value. If \code{TRUE}, suppresses any informational messages.
+Defaults to \code{FALSE}.}
 }
 \value{
 A \code{SpatRaster}
@@ -35,12 +36,13 @@ trees exists, the infection risk is considered zero.
 \examples{
 \donttest{
 ## load packages
+library(phytorisk)
 library(sf)
 library(terra)
 
 ## load data
-study_area_sf <- st_read(system.file("spatial/tejera.geojson", package = "phytorisk"))
-poi_sf <- st_read(system.file("spatial/poi.geojson", package = "phytorisk"))
+study_area_sf <- read_sf(system.file("spatial/tejera.geojson", package = "phytorisk"))
+poi_sf <- read_sf(system.file("spatial/poi.geojson", package = "phytorisk"))
 trees_sr <- rast(system.file("spatial/trees_light.tiff", package = "phytorisk"))
 
 ## simulate mechanism
@@ -48,7 +50,11 @@ mec_rootcontact_sr <- mec_rootcontact(trees_sr, study_area_sf, poi_sf)
 }
 }
 \references{
-Cardillo, E., Abad, E., Meyer, S., 2021. Iberian oak decline caused by Phytophthora cinnamomi: A spatiotemporal analysis incorporating the effect of host heterogeneities at landscape scale. For. Pathol. 51, e12667. \doi{10.1111/efp.12667}
+Cardillo, E., Abad, E., Meyer, S., 2021. Iberian oak decline caused by Phytophthora
+cinnamomi: A spatiotemporal analysis incorporating the effect of host heterogeneities
+at landscape scale. For. Pathol. 51, e12667. \doi{10.1111/efp.12667}
 
-Cardillo, E., Acedo, A., Abad, E., 2018. Topographic effects on dispersal patterns of Phytophthora cinnamomi at a stand scale in a Spanish heathland. PloS One 13, e0195060.
+Cardillo, E., Acedo, A., Abad, E., 2018. Topographic effects on dispersal patterns
+of Phytophthora cinnamomi at a stand scale in a Spanish heathland. PloS One 13,
+e0195060.
 }
