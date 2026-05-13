@@ -3,17 +3,16 @@
 #'
 #' Optional Module. Simulates dispersion by domestic and wild animal movement
 #'
-#' @param aoi a \code{sf} polygon representing the area of interest
-#' @param poi a single-point \code{sf} object denoting the point of interest
-#' to run the simulations
-#' @param mec_surface the result of \link{mec_surfacewater}
-#' @param n_animals number of animals
-#' @param n_steps number of steps of each animal for the simulations
-#' @param pixel_size size of the movement in pixels
-#' @param n_iter number of random iterations for each animal
-#' @param dist filter trajectories less than the specified meters away of the
+#' @template aoi
+#' @template poi
+#' @param mec_surface The result of \link{mec_surfacewater}
+#' @param n_animals Number of simulated animals
+#' @param n_steps Number of steps of each animal for the simulations
+#' @param pixel_size Size of the movement in pixels
+#' @param n_iter Number of random iterations for each animal
+#' @param dist Filter trajectories less than the specified meters away of the
 #' POI (susceptible to inoculum)
-#' @param quiet if \code{TRUE}, suppress any message or progress bar
+#' @template quiet
 #'
 #' @returns A \code{SpatRaster}
 #' @importFrom stats aggregate
@@ -30,26 +29,47 @@
 #'
 #' @references
 #'
-#' Kliejunas, J.T., Ko, W.H., 1976. Dispersal of Phytophthora cinnamomi on the island of Hawaii. Phytopathology 66, 457–460.
+#' Kliejunas, J.T., Ko, W.H., 1976. Dispersal of Phytophthora cinnamomi on 
+#' the island of Hawaii. Phytopathology 66, 457–460.
 #'
-#' Li, A.Y., Williams, N., Fenwick, S.G., Hardy, G.E.St.J., Adams, P.J., 2014b. Potential for dissemination of Phytophthora cinnamomi by feral pigs via ingestion of infected plant material. Biol. Invasions 16, 765–774. \doi{10.1007/s10530-013-0535-7}
+#' Li, A.Y., Williams, N., Fenwick, S.G., Hardy, G.E.St.J., Adams, P.J., 
+#' 2014b. Potential for dissemination of Phytophthora cinnamomi by feral 
+#' pigs via ingestion of infected plant material. Biol. Invasions 16, 
+#' 765–774. \doi{10.1007/s10530-013-0535-7}
 #'
-#' Cardillo, E., Acedo, A., Abad, E., 2018. Topographic effects on dispersal patterns of Phytophthora cinnamomi at a stand scale in a Spanish heathland. PloS One 13, e0195060.
+#' Cardillo, E., Acedo, A., Abad, E., 2018. Topographic effects on dispersal 
+#' patterns of Phytophthora cinnamomi at a stand scale in a Spanish heathland. 
+#' PloS One 13, e0195060.
 #'
 #' @examples
 #' ## load packages
 #' # TODO
-mec_zoospread <- function(aoi,
-                          poi,
-                          mec_surface,
-                          n_animals = 5,
-                          n_steps = 100,
-                          pixel_size = 1,
-                          n_iter = 10,
-                          dist = 5,
-                          quiet = FALSE) {
+mec_zoospread <- function(
+  aoi,
+  poi,
+  mec_surface,
+  n_animals = 5,
+  n_steps = 100,
+  pixel_size = 1,
+  n_iter = 10,
+  dist = 5,
+  quiet = FALSE) {
+  
+  # 0. Validate inputs
+  assert_sf(aoi, "aoi", c("POLYGON", "MULTIPOLYGON"))
+  assert_sf_point(poi, "poi")
+  assert_spatraster(mec_surface, "mec_surface")
+  assert_same_crs(poi, "poi", aoi, "aoi")
+  assert_same_crs(mec_surface, "mec_surface", poi, "poi")
+  assert_integer_scalar(n_animals, "n_animals")
+  assert_integer_scalar(n_steps, "n_steps")
+  assert_positive_numeric(pixel_size, "pixel_size")
+  assert_integer_scalar(n_iter, "n_iter")
+  assert_positive_numeric(dist, "dist")
+  assert_logic(quiet, "quiet")
 
-  ## 1. Generate animal trajectories --------------
+
+  # 1. Generate animal trajectories
 
   trajectory_lst <- list()
   if (!quiet) cli::cli_h2("Starting animal movement simulation")
@@ -69,7 +89,9 @@ mec_zoospread <- function(aoi,
 
       ## randomly select a source of food for each animal
       food_coords_list <- lapply(1:n_animals, function(i) {
-        food_coords <- sf::st_coordinates(mec_surface$surface_water[sample(nrow(mec_surface$surface_water), 1), ])[1, ]
+        food_coords <- sf::st_coordinates(
+          mec_surface$surface_water[sample(nrow(mec_surface$surface_water), 1), ]
+        )[1, ]
         return(food_coords)
       })
     })
@@ -93,12 +115,21 @@ mec_zoospread <- function(aoi,
 
         ## store animal's positions in the data frame
         index <- (step - 1) * n_animals + i
-        animal_positions_df[index, ] <- c(step, sf::st_coordinates(animals[[i]])[1], sf::st_coordinates(animals[[i]])[2], i)
+        animal_positions_df[index, ] <- c(
+          step, 
+          sf::st_coordinates(animals[[i]])[1], 
+          sf::st_coordinates(animals[[i]])[2], 
+          i
+        )
       }
     }
 
     ## convert positions to points
-    animal_positions_sf <- sf::st_as_sf(animal_positions_df, coords = c("x", "y"), crs = sf::st_crs(aoi))
+    animal_positions_sf <- sf::st_as_sf(
+      animal_positions_df, 
+      coords = c("x", "y"), 
+      crs = sf::st_crs(aoi)
+    )
 
     ## group by animal and create trajectory lines
     trajectory_union_sf <- aggregate(
@@ -121,7 +152,8 @@ mec_zoospread <- function(aoi,
   if (!quiet) cli::cli_alert_success("Simulation completed. {n_iter} trajectories generated.")
 
 
-  ## 2. Prepare data -----------------------
+  # 2. Prepare data
+
   if (!quiet) cli::cli_progress_step("Preparing results", "Success", "Failed")
 
   ## bind in a single file
@@ -144,7 +176,13 @@ mec_zoospread <- function(aoi,
 
   ## rasterize trajectories
   for (i in 1:nrow(trajectory_sf)) {
-    new_line_sr <- terra::rasterize(trajectory_sf[i,], risk_pc_sr, field = 1, update = TRUE, fun = 'sum')
+    new_line_sr <- terra::rasterize(
+      trajectory_sf[i,], 
+      risk_pc_sr, 
+      field = 1, 
+      update = TRUE, 
+      fun = 'sum'
+    )
     risk_pc_sr <- max(risk_pc_sr, new_line_sr, na.rm = TRUE)
   }
 

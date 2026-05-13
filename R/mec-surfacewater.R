@@ -4,12 +4,11 @@
 #'
 #' Simulates the spread of the inoculum in surface water flow
 #'
-#' @param dem a single-band \code{SpatRaster} with a digital elevation model
-#' @param mec_soilwater the result of \link{mec_soilwater}
-#' @param poi a single-point \code{sf} object denoting the point of interest
-#' to run the simulations
-#' @param buffer a buffer in meters to extend the spread in every direction
-#' @param quiet if \code{TRUE}, suppress any message or progress bar
+#' @template dem
+#' @param mec_soilwater The result of \link{mec_soilwater}
+#' @template poi
+#' @template buffer
+#' @template quiet
 #'
 #' @returns A list with the surface flow risk (SpatRaster), and the surface
 #' water (sf)
@@ -27,18 +26,24 @@
 #'
 #' @references
 #'
-#' Li, A.Y., Williams, N., Fenwick, S.G., Hardy, G.E.St.J., Adams, P.J., 2014b. Potential for dissemination of Phytophthora cinnamomi by feral pigs via ingestion of infected plant material. Biol. Invasions 16, 765–774. \doi{10.1007/s10530-013-0535-7}
+#' Li, A.Y., Williams, N., Fenwick, S.G., Hardy, G.E.St.J., Adams, P.J., 2014b. 
+#' Potential for dissemination of Phytophthora cinnamomi by feral pigs via 
+#' ingestion of infected plant material. Biol. Invasions 16, 765–774. 
+#' \doi{10.1007/s10530-013-0535-7}
 #'
-#' Ruiz-Gómez, F.J., Pérez-de-Luque, A., Navarro-Cerrillo, R.M., 2019. The involvement of Phytophthora root rot and drought stress in holm oak decline: from ecophysiology to microbiome influence. Curr. For. Rep. 5, 251–266.
+#' Ruiz-Gómez, F.J., Pérez-de-Luque, A., Navarro-Cerrillo, R.M., 2019. The 
+#' involvement of Phytophthora root rot and drought stress in holm oak decline: 
+#' from ecophysiology to microbiome influence. Curr. For. Rep. 5, 251–266.
 #'
 #'
 #' @examples
 #' ## load packages
+#' library(phytorisk)
 #' library(sf)
 #' library(terra)
 #'
 #' ## load data
-#' poi_sf <- st_read(system.file("spatial/poi.geojson", package = "phytorisk"))
+#' poi_sf <- read_sf(system.file("spatial/poi.geojson", package = "phytorisk"))
 #' dem_sr <- rast(system.file("spatial/dem_light.tiff", package = "phytorisk"))
 #' trees_sr <- rast(system.file("spatial/trees_light.tiff", package = "phytorisk"))
 #'
@@ -47,14 +52,28 @@
 #' mec_surface_sr <- mec_surfacewater(dem_sr, mec_soilwater_sr, poi_sf)
 mec_surfacewater <- function(dem, mec_soilwater, poi, buffer = 50, quiet = FALSE) {
 
-  ## 0. Check for errors ----------------------
-  if (!terra::same.crs(dem, mec_soilwater) | !terra::same.crs(mec_soilwater, poi)) cli::cli_abort("CRS of inputs is not the same")
-  if (all(names(mec_soilwater) != c("mec_soilwater", "streams"))) cli::cli_abort("`mec_soilwater` must be the result of the {.topic phytorisk::mec_soilwater}")
+  # 0. Validate inputs
+  assert_spatraster(dem, "dem")
+  assert_spatraster(mec_soilwater, "mec_soilwater")
+  assert_sf_point(poi, "poi")
+  assert_same_crs(dem, "dem", mec_soilwater, "mec_soilwater")
+  assert_same_crs(dem, "dem", poi, "poi")
+  assert_positive_numeric(buffer, "buffer")
+  assert_logic(quiet, "quiet")
+  if (all(names(mec_soilwater) != c("mec_soilwater", "streams"))) {
+    cli::cli_abort("`mec_soilwater` must be the result of the {.topic phytorisk::mec_soilwater}")
+  }
 
-  ## 1. Natural drainage network -----------------
+  # 1. Natural drainage network
 
   ## calculate the flow accumulation using a simple approximation
-  if (!quiet) cli::cli_progress_step("Calculating natural drainage network...", "Natural drainage network calculated", "Natural drainage network failed")
+  if (!quiet) {
+    cli::cli_progress_step(
+      "Calculating natural drainage network...", 
+      "Natural drainage network calculated", 
+      "Natural drainage network failed"
+    )
+  }
   twi_sr <- twi(dem)
 
   ## union of drainage network and moist areas
@@ -65,12 +84,22 @@ mec_surfacewater <- function(dem, mec_soilwater, poi, buffer = 50, quiet = FALSE
   surface_water_vect <- terra::as.polygons(surface_water_sr)
   surface_water_vect <- surface_water_vect[surface_water_vect$streams == 1, ]
 
-  ## 2. Surface water close to foci ------------
+  # 2. Surface water close to foci
 
   ## apply limits mask to the streams raster
   ## condition: the soil humidity spot must get to a surface stream or flooding area
-  if (!quiet) cli::cli_progress_step("Identifying surface water close to foci...", "Surface water close to foci identified", "Surface water close to foci failed")
-  streams_masked_sr <- terra::mask(mec_soilwater$streams, mec_soilwater$mec_soilwater, maskvalues = 0)
+  if (!quiet) {
+    cli::cli_progress_step(
+      "Identifying surface water close to foci...", 
+      "Surface water close to foci identified", 
+      "Surface water close to foci failed"
+    )
+  }
+  streams_masked_sr <- terra::mask(
+    mec_soilwater$streams, 
+    mec_soilwater$mec_soilwater, 
+    maskvalues = 0
+  )
   values <- values(streams_masked_sr)
 
   ## get the coordinates of pixels with value equal to 1
@@ -97,7 +126,13 @@ mec_surfacewater <- function(dem, mec_soilwater, poi, buffer = 50, quiet = FALSE
   init_j    <- terra::colFromCell(surface_water_sr, init_cell)
 
   ## find the pixels connected to the POI
-  if (!quiet) cli::cli_progress_step("Finding connected pixels...", "Finished", "Finding connected pixels failed")
+  if (!quiet) {
+    cli::cli_progress_step(
+      "Finding connected pixels...", 
+      "Finished", 
+      "Finding connected pixels failed"
+    )
+  }
   connected_lst <- find_connected(surface_water_sr, init_i, init_j)
 
   ## create a new binary raster with the connected pixels marked as 1
