@@ -59,6 +59,7 @@ mec_surfacewater <- function(dem, mec_soilwater, poi, buffer = 50, quiet = FALSE
   assert_spatraster(dem, "dem")
   assert_spatraster(mec_soilwater, "mec_soilwater")
   assert_sf_point(poi, "poi")
+  assert_same_ext(dem, "dem", mec_soilwater, "mec_soilwater")
   assert_same_crs(dem, "dem", mec_soilwater, "mec_soilwater")
   assert_same_crs(dem, "dem", poi, "poi")
   assert_positive_numeric(buffer, "buffer")

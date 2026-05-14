@@ -56,17 +56,31 @@ mec_zoospread <- function(
   quiet = FALSE) {
   
   # 0. Validate inputs
+  
+  ## Abort if it's not a list
+  if (typeof(mec_surface) != "list")
+    cli::cli_abort("{.arg mec_surface} argument must be the output of {.fun mec_surface}")
+
+  ## Abort if it does not contain the expected inputs
+  if (!inherits(mec_surface$mec_surfacewater, "SpatRaster") || !inherits(mec_surface$surface_water, "sf")) 
+    cli::cli_abort("{.arg mec_surface} argument must be the output of {.fun mec_surface}")
+  
+  ## Rest of validations
   assert_sf(aoi, "aoi", c("POLYGON", "MULTIPOLYGON"))
   assert_sf_point(poi, "poi")
-  assert_spatraster(mec_surface, "mec_surface")
   assert_same_crs(poi, "poi", aoi, "aoi")
-  assert_same_crs(mec_surface, "mec_surface", poi, "poi")
+  assert_same_crs(mec_surface$mec_surfacewater, "mec_surface", poi, "poi")
   assert_integer_scalar(n_animals, "n_animals")
   assert_integer_scalar(n_steps, "n_steps")
   assert_positive_numeric(pixel_size, "pixel_size")
   assert_integer_scalar(n_iter, "n_iter")
   assert_positive_numeric(dist, "dist")
   assert_logic(quiet, "quiet")
+
+  ## Ensure POI is within the treecover
+  if (!terra::is.related(terra::vect(poi), mec_surface$mec_surfacewater, "intersects")) {
+    cli::cli_abort("{.arg poi} does not intersect with {.arg mec_surface}.")
+  }
 
 
   # 1. Generate animal trajectories
@@ -172,7 +186,7 @@ mec_zoospread <- function(
   }
 
   ## create a raster template for the study area
-  risk_pc_sr <- terra::rast(mec_surface$mec_surfaceflow, vals = 0)
+  risk_pc_sr <- terra::rast(mec_surface$mec_surfacewater, vals = 0)
 
   ## rasterize trajectories
   for (i in 1:nrow(trajectory_sf)) {

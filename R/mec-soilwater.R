@@ -60,6 +60,11 @@ mec_soilwater <- function(dem, poi, th = 100, quiet = FALSE) {
   assert_positive_numeric(th, "th")
   assert_logic(quiet, "quiet")
 
+  ## Ensure POI is within the DEM
+  if (!terra::is.related(terra::vect(poi), dem, "intersects")) {
+    cli::cli_abort("{.arg poi} does not intersect with {.arg dem}.")
+  }
+
   ## Ensure flowdem is installed
   if (!requireNamespace("flowdem")) {
     cli::cli_abort(c(
