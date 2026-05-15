@@ -1,8 +1,9 @@
 
 
-#' Root-to-root contact
+#' Transmission through root-to-root contact
 #'
-#' Simulates diffusive inoculum spread through root contact
+#' Simulates diffusive inoculum spread through root contact between
+#' neighbouring trees
 #'
 #' @template treecover
 #' @template aoi

@@ -56,7 +56,38 @@ parameters, such as the number of animals and steps, are set at the start.
 }
 \examples{
 ## load packages
-# TODO
+## load packages
+library(phytorisk)
+library(sf)
+library(terra)
+
+## load data
+poi_sf <- st_read(
+  system.file("spatial/poi.geojson", package = "phytorisk"),
+  quiet = TRUE
+)
+dem_sr <- rast(system.file("spatial/dem_light.tiff", package = "phytorisk"))
+trees_sr <- rast(system.file("spatial/trees_light.tiff", package = "phytorisk"))
+aoi_sf <- st_read(
+  system.file("spatial/tejera.geojson", package = "phytorisk"),
+  quiet = TRUE
+)
+
+## first, calculate the soil water and surface water dispersal mechanisms
+mec_soilwater_sr <- mec_soilwater(dem_sr, poi_sf)
+mec_surface_sr   <- mec_surfacewater(dem_sr, mec_soilwater_sr, poi_sf)
+
+## calculate the spread by animals (dummy example)
+mec_zoospread_sr <- mec_zoospread(
+  aoi = aoi_sf,
+  poi = poi_sf,
+  mec_surface = mec_surface_sr,
+  n_animals = 5,
+  n_steps = 5,
+  pixel_size = 1,
+  n_iter = 2,
+  dist = 5
+)
 }
 \references{
 Kliejunas, J.T., Ko, W.H., 1976. Dispersal of Phytophthora cinnamomi on

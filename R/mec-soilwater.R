@@ -1,8 +1,9 @@
 
 
-#' Water inoculum movement
+#' Transport through soil water
 #'
-#' Simulates inoculum transport via water in the soil matrix
+#' Simulates the spread of *Phytophthora cinnamomi* inoculum within the
+#' soil matrix through the soil water
 #'
 #' @template dem
 #' @template poi

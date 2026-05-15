@@ -1,8 +1,9 @@
 
 
-#' Inoculum spread
+#' Inoculum spread in surface water
 #'
-#' Simulates the spread of the inoculum in surface water flow
+#' Simulates the spread of the inoculum dispersal through surface water by
+#' integrating hydrological flow paths and wetness conditions
 #'
 #' @template dem
 #' @param mec_soilwater The result of \link{mec_soilwater}
