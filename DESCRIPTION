@@ -1,6 +1,6 @@
 Package: phytorisk
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Assessment of Risk Infection of Phytophothora cinnamomi
 Version: 0.1.0
 Authors@R: c(
     person("Adrián", "Cidre González", , "adrian.cidre@gmail.com", role = c("aut", "cre")),
@@ -8,8 +8,8 @@ Authors@R: c(
     person("Pablo", "González Moreno", , "ir2gomop@uco.es", role = c("aut")),
     person("Francisco José", "Ruiz Gómez", , "ruizgomezfj@gmail.com", role = c("aut"))
   )
-Description: More about what it does (maybe more than one line).
-    Continuation lines should be indented.
+Description: Simulates the main dispersal mechanisms of Phytophothra cinnamomi, and
+    produces spatially explicit infection risk raster outpus.
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
