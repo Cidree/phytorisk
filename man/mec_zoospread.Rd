@@ -7,7 +7,7 @@
 mec_zoospread(
   aoi,
   poi,
-  mec_surface,
+  mec_surfacewater,
   n_animals = 5,
   n_steps = 100,
   pixel_size = 1,
@@ -23,7 +23,7 @@ the tree cover}
 \item{poi}{A single-point \code{sf} object denoting the point of interest
 to run the simulations}
 
-\item{mec_surface}{The result of \link{mec_surfacewater}}
+\item{mec_surfacewater}{The result of \link{mec_surfacewater}}
 
 \item{n_animals}{Number of simulated animals}
 
@@ -55,7 +55,7 @@ those crossing the foci are identified for further analysis. Simulation
 parameters, such as the number of animals and steps, are set at the start.
 }
 \examples{
-## load packages
+\donttest{
 ## load packages
 library(phytorisk)
 library(sf)
@@ -88,6 +88,7 @@ mec_zoospread_sr <- mec_zoospread(
   n_iter = 2,
   dist = 5
 )
+}
 }
 \references{
 Kliejunas, J.T., Ko, W.H., 1976. Dispersal of Phytophthora cinnamomi on

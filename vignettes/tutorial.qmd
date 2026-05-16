@@ -2,7 +2,7 @@
 title: "Phytorisk Tutorial"
 date: "`r Sys.Date()`"
 vignette: >
-  %\VignetteIndexEntry{Getting started}
+  %\VignetteIndexEntry{Phytorisk Tutorial}
   %\VignetteEngine{quarto::html}
   %\VignetteEncoding{UTF-8}
 knitr:
