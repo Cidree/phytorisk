@@ -2,7 +2,7 @@
 % Please edit documentation in R/mec-soilwater.R
 \name{mec_soilwater}
 \alias{mec_soilwater}
-\title{Water inoculum movement}
+\title{Transport through soil water}
 \usage{
 mec_soilwater(dem, poi, th = 100, quiet = FALSE)
 }
@@ -21,7 +21,8 @@ Defaults to \code{FALSE}.}
 A \code{SpatRaster}
 }
 \description{
-Simulates inoculum transport via water in the soil matrix
+Simulates the spread of \emph{Phytophthora cinnamomi} inoculum within the
+soil matrix through the soil water
 }
 \details{
 This function models inoculum movement in soil, considering flow direction

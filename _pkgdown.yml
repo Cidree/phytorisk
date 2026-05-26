@@ -23,7 +23,7 @@ navbar:
     - icon: fa-home
       href: index.html
     - text: Get Started
-      href: articles/phytorisk.html
+      href: index.html
     - text: "Reference"
       href: reference/index.html
     - text: Tutorials

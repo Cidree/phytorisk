@@ -5,7 +5,7 @@
 #'
 #' @template aoi
 #' @template poi
-#' @param mec_surface The result of \link{mec_surfacewater}
+#' @param mec_surfacewater The result of \link{mec_surfacewater}
 #' @param n_animals Number of simulated animals
 #' @param n_steps Number of steps of each animal for the simulations
 #' @param pixel_size Size of the movement in pixels
@@ -42,12 +42,44 @@
 #' PloS One 13, e0195060.
 #'
 #' @examples
+#' \donttest{
 #' ## load packages
-#' # TODO
+#' library(phytorisk)
+#' library(sf)
+#' library(terra)
+#' 
+#' ## load data
+#' poi_sf <- st_read(
+#'   system.file("spatial/poi.geojson", package = "phytorisk"),
+#'   quiet = TRUE
+#' )
+#' dem_sr <- rast(system.file("spatial/dem_light.tiff", package = "phytorisk"))
+#' trees_sr <- rast(system.file("spatial/trees_light.tiff", package = "phytorisk"))
+#' aoi_sf <- st_read(
+#'   system.file("spatial/tejera.geojson", package = "phytorisk"),
+#'   quiet = TRUE
+#' )
+#' 
+#' ## first, calculate the soil water and surface water dispersal mechanisms
+#' mec_soilwater_sr <- mec_soilwater(dem_sr, poi_sf)
+#' mec_surface_sr   <- mec_surfacewater(dem_sr, mec_soilwater_sr, poi_sf)
+#' 
+#' ## calculate the spread by animals (dummy example)
+#' mec_zoospread_sr <- mec_zoospread(
+#'   aoi = aoi_sf,
+#'   poi = poi_sf,
+#'   mec_surface = mec_surface_sr,
+#'   n_animals = 5,
+#'   n_steps = 5,
+#'   pixel_size = 1,
+#'   n_iter = 2,
+#'   dist = 5
+#' )
+#' }
 mec_zoospread <- function(
   aoi,
   poi,
-  mec_surface,
+  mec_surfacewater,
   n_animals = 5,
   n_steps = 100,
   pixel_size = 1,
@@ -56,17 +88,31 @@ mec_zoospread <- function(
   quiet = FALSE) {
   
   # 0. Validate inputs
+  
+  ## Abort if it's not a list
+  if (typeof(mec_surfacewater) != "list")
+    cli::cli_abort("{.arg mec_surfacewater} argument must be the output of {.fun mec_surfacewater}")
+
+  ## Abort if it does not contain the expected inputs
+  if (!inherits(mec_surfacewater$mec_surfacewater, "SpatRaster") || !inherits(mec_surfacewater$surface_water, "sf")) 
+    cli::cli_abort("{.arg mec_surfacewater} argument must be the output of {.fun mec_surfacewater}")
+  
+  ## Rest of validations
   assert_sf(aoi, "aoi", c("POLYGON", "MULTIPOLYGON"))
   assert_sf_point(poi, "poi")
-  assert_spatraster(mec_surface, "mec_surface")
   assert_same_crs(poi, "poi", aoi, "aoi")
-  assert_same_crs(mec_surface, "mec_surface", poi, "poi")
+  assert_same_crs(mec_surfacewater$mec_surfacewater, "mec_surfacewater", poi, "poi")
   assert_integer_scalar(n_animals, "n_animals")
   assert_integer_scalar(n_steps, "n_steps")
   assert_positive_numeric(pixel_size, "pixel_size")
   assert_integer_scalar(n_iter, "n_iter")
   assert_positive_numeric(dist, "dist")
   assert_logic(quiet, "quiet")
+
+  ## Ensure POI is within the treecover
+  if (!terra::is.related(terra::vect(poi), mec_surfacewater$mec_surfacewater, "intersects")) {
+    cli::cli_abort("{.arg poi} does not intersect with {.arg mec_surfacewater}.")
+  }
 
 
   # 1. Generate animal trajectories
@@ -90,7 +136,7 @@ mec_zoospread <- function(
       ## randomly select a source of food for each animal
       food_coords_list <- lapply(1:n_animals, function(i) {
         food_coords <- sf::st_coordinates(
-          mec_surface$surface_water[sample(nrow(mec_surface$surface_water), 1), ]
+          mec_surfacewater$surface_water[sample(nrow(mec_surfacewater$surface_water), 1), ]
         )[1, ]
         return(food_coords)
       })
@@ -172,7 +218,7 @@ mec_zoospread <- function(
   }
 
   ## create a raster template for the study area
-  risk_pc_sr <- terra::rast(mec_surface$mec_surfaceflow, vals = 0)
+  risk_pc_sr <- terra::rast(mec_surfacewater$mec_surfacewater, vals = 0)
 
   ## rasterize trajectories
   for (i in 1:nrow(trajectory_sf)) {

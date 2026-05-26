@@ -13,6 +13,7 @@ phytorisk_ensemble_raw(
   th = 100,
   buffer = 50,
   include_zoospread = FALSE,
+  append_mec = FALSE,
   ...,
   quiet = FALSE
 )
@@ -39,6 +40,9 @@ corresponding weights. See \link{phytorisk_ensemble}}
 
 \item{include_zoospread}{logical. Whether to include the optional module of \link{mec_zoospread}}
 
+\item{append_mec}{Logical. Whether to append to the results of each
+individual module to the output SpatRaster}
+
 \item{...}{arguments passed to \link{mec_zoospread}}
 
 \item{quiet}{A logical value. If \code{TRUE}, suppresses any informational messages.
@@ -50,6 +54,35 @@ A \code{SpatRaster}
 \description{
 Calculates Phytophthora cinnamomi's ensemble risk from raw data
 }
-\details{
-#TODO
+\examples{
+\donttest{
+## load packages
+library(phytorisk)
+library(sf)
+library(terra)
+
+## load data
+poi_sf <- st_read(
+  system.file("spatial/poi.geojson", package = "phytorisk"),
+  quiet = TRUE
+)
+dem_sr <- rast(system.file("spatial/dem_light.tiff", package = "phytorisk"))
+trees_sr <- rast(system.file("spatial/trees_light.tiff", package = "phytorisk"))
+aoi_sf <- st_read(
+  system.file("spatial/tejera.geojson", package = "phytorisk"),
+  quiet = TRUE
+)
+
+## calculate ensemble risk, returning individual mechanisms
+risk_equal_sr <- phytorisk_ensemble_raw(
+  aoi = aoi_sf,
+  poi = poi_sf,
+  dem = dem_sr,
+  treecover = trees_sr,
+  append_mec = TRUE
+)
+
+## visualize results
+plot(risk_equal_sr)
+}
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/mec-surfacewater.R
 \name{mec_surfacewater}
 \alias{mec_surfacewater}
-\title{Inoculum spread}
+\title{Inoculum spread in surface water}
 \usage{
 mec_surfacewater(dem, mec_soilwater, poi, buffer = 50, quiet = FALSE)
 }
@@ -24,7 +24,8 @@ A list with the surface flow risk (SpatRaster), and the surface
 water (sf)
 }
 \description{
-Simulates the spread of the inoculum in surface water flow
+Simulates the spread of the inoculum dispersal through surface water by
+integrating hydrological flow paths and wetness conditions
 }
 \details{
 This function models inoculum movement in downslope streams using the natural

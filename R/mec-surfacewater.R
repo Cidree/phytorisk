@@ -1,8 +1,9 @@
 
 
-#' Inoculum spread
+#' Inoculum spread in surface water
 #'
-#' Simulates the spread of the inoculum in surface water flow
+#' Simulates the spread of the inoculum dispersal through surface water by
+#' integrating hydrological flow paths and wetness conditions
 #'
 #' @template dem
 #' @param mec_soilwater The result of \link{mec_soilwater}
@@ -59,6 +60,7 @@ mec_surfacewater <- function(dem, mec_soilwater, poi, buffer = 50, quiet = FALSE
   assert_spatraster(dem, "dem")
   assert_spatraster(mec_soilwater, "mec_soilwater")
   assert_sf_point(poi, "poi")
+  assert_same_ext(dem, "dem", mec_soilwater, "mec_soilwater")
   assert_same_crs(dem, "dem", mec_soilwater, "mec_soilwater")
   assert_same_crs(dem, "dem", poi, "poi")
   assert_positive_numeric(buffer, "buffer")

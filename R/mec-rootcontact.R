@@ -1,8 +1,9 @@
 
 
-#' Root-to-root contact
+#' Transmission through root-to-root contact
 #'
-#' Simulates diffusive inoculum spread through root contact
+#' Simulates diffusive inoculum spread through root contact between
+#' neighbouring trees
 #'
 #' @template treecover
 #' @template aoi
@@ -63,6 +64,11 @@ mec_rootcontact <- function(treecover, aoi, poi, quiet = FALSE) {
   assert_logic(quiet, "quiet")
   assert_same_crs(treecover, "treecover", aoi, "aoi")
   assert_same_crs(treecover, "treecover", poi, "poi")
+
+  ## Ensure POI is within the treecover
+  if (!terra::is.related(terra::vect(poi), treecover, "intersects")) {
+    cli::cli_abort("{.arg poi} does not intersect with {.arg treecover}.")
+  }
 
 
   # 1. Tree cover

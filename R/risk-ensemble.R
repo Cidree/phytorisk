@@ -28,7 +28,44 @@
 #' 3 or 4 specifying the desired weights based on expert criteria.
 #'
 #' @examples
-#' ## TODO
+#' \donttest{
+#' ## load packages
+#' library(phytorisk)
+#' library(sf)
+#' library(terra)
+#' 
+#' ## load data
+#' poi_sf <- st_read(
+#'   system.file("spatial/poi.geojson", package = "phytorisk"),
+#'   quiet = TRUE
+#' )
+#' dem_sr <- rast(system.file("spatial/dem_light.tiff", package = "phytorisk"))
+#' trees_sr <- rast(system.file("spatial/trees_light.tiff", package = "phytorisk"))
+#' aoi_sf <- st_read(
+#'   system.file("spatial/tejera.geojson", package = "phytorisk"),
+#'   quiet = TRUE
+#' )
+#' 
+#' ## first, calculate the individual mechanisms
+#' mec_soilwater_sr <- mec_soilwater(dem_sr, poi_sf)
+#' mec_surface_lst   <- mec_surfacewater(dem_sr, mec_soilwater_sr, poi_sf)
+#' mec_rootcontact_sr <- mec_rootcontact(trees_sr, aoi_sf, poi_sf)
+#' 
+#' ## calculate ensemble risk using equal weights
+#' risk_equal_sr <- phytorisk_ensemble(
+#'  mec_soilwater = mec_soilwater_sr,
+#'  mec_rootcontact = mec_rootcontact_sr,
+#'  mec_surfacewater = mec_surface_lst
+#')
+#' 
+#' ## assign more weight to root-to-root contact
+#' risk_weighted_sr <- phytorisk_ensemble(
+#'  mec_soilwater = mec_soilwater_sr,
+#'  mec_rootcontact = mec_rootcontact_sr,
+#'  mec_surfacewater = mec_surface_lst,
+#'  weights = c(.3, .4, .3)
+#')
+#' }
 phytorisk_ensemble <- function(
   mec_soilwater,
   mec_rootcontact,
@@ -38,9 +75,16 @@ phytorisk_ensemble <- function(
 ) {
 
   # 0. Validate inputs
+  ## Abort if it's not a list
+  if (typeof(mec_surfacewater) != "list")
+    cli::cli_abort("{.arg mec_surfacewater} argument must be the output of {.fun mec_surfacewater}")
+
+  ## Abort if it does not contain the expected inputs
+  if (!inherits(mec_surfacewater$mec_surfacewater, "SpatRaster") || !inherits(mec_surfacewater$surface_water, "sf")) 
+    cli::cli_abort("{.arg mec_surfacewater} argument must be the output of {.fun mec_surfacewater}")
+  
   assert_spatraster(mec_soilwater, "mec_soilwater")
   assert_spatraster(mec_rootcontact, "mec_rootcontact")
-  assert_spatraster(mec_surfacewater, "mec_surfacewater")
   if (!is.null(mec_zoospread)) assert_spatraster(mec_zoospread, "mec_zoospread")
 
   layers <- c(mec_soilwater$mec_soilwater, mec_rootcontact, mec_surfacewater$mec_surfacewater, mec_zoospread)
@@ -58,7 +102,9 @@ phytorisk_ensemble <- function(
 
 
   # 2. Weighted sum
-  return(sum(layers * weights))
+  risk_rast <- sum(layers * weights)
+  names(risk_rast) <- "ensemble_risk"
+  return(risk_rast)
 }
 
 
@@ -80,6 +126,8 @@ phytorisk_ensemble <- function(
 #' @template th
 #' @template buffer
 #' @param include_zoospread logical. Whether to include the optional module of [mec_zoospread]
+#' @param append_mec Logical. Whether to append to the results of each
+#' individual module to the output SpatRaster
 #' @param ... arguments passed to [mec_zoospread]
 #' @template quiet
 #'
@@ -88,8 +136,37 @@ phytorisk_ensemble <- function(
 #'
 #' @details
 #'
-#' #TODO
-#'
+#' @examples
+#' \donttest{
+#' ## load packages
+#' library(phytorisk)
+#' library(sf)
+#' library(terra)
+#' 
+#' ## load data
+#' poi_sf <- st_read(
+#'   system.file("spatial/poi.geojson", package = "phytorisk"),
+#'   quiet = TRUE
+#' )
+#' dem_sr <- rast(system.file("spatial/dem_light.tiff", package = "phytorisk"))
+#' trees_sr <- rast(system.file("spatial/trees_light.tiff", package = "phytorisk"))
+#' aoi_sf <- st_read(
+#'   system.file("spatial/tejera.geojson", package = "phytorisk"),
+#'   quiet = TRUE
+#' )
+#' 
+#' ## calculate ensemble risk, returning individual mechanisms
+#' risk_equal_sr <- phytorisk_ensemble_raw(
+#'   aoi = aoi_sf,
+#'   poi = poi_sf,
+#'   dem = dem_sr,
+#'   treecover = trees_sr,
+#'   append_mec = TRUE
+#' )
+#' 
+#' ## visualize results
+#' plot(risk_equal_sr)
+#' }
 phytorisk_ensemble_raw <- function(
   aoi,
   poi,
@@ -99,8 +176,15 @@ phytorisk_ensemble_raw <- function(
   th = 100,
   buffer = 50,
   include_zoospread = FALSE,
+  append_mec = FALSE,
   ...,
   quiet = FALSE) {
+  
+  # 0. Validate speciific inputs (rest are handled downstream)
+  assert_logic(include_zoospread, "include_zoospread")
+  assert_logic(append_mec, "append_mec")
+
+  # 1. Calculate individual components
 
   if (!quiet) cli::cli_h1("Mec Ii - Spread in soil water")
   mec_soilwater <- mec_soilwater(dem, poi, th = th, quiet = quiet)
@@ -118,6 +202,7 @@ phytorisk_ensemble_raw <- function(
     mec_zoospread <- NULL
   }
 
+  # 2. Calculate ensemble risk
   final_risk <- phytorisk_ensemble(
     mec_soilwater    = mec_soilwater, 
     mec_rootcontact  = mec_rootcontact, 
@@ -126,6 +211,11 @@ phytorisk_ensemble_raw <- function(
     weights          = weights
   )
 
-  return(final_risk)
+  # 3. Return results based on append_mec
+  if (append_mec) {
+    c(final_risk, mec_soilwater, mec_rootcontact, mec_zoospread, mec_zoospread)
+  } else {
+    final_risk
+  }
 
 }

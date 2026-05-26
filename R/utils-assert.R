@@ -77,3 +77,13 @@ assert_same_crs <- function(arg1, ref1, arg2, ref2) { # nocov start
         )
     }
 } # nocov end
+
+
+assert_same_ext <- function(arg1, ref1, arg2, ref2) { # nocov start
+    if (!terra::compareGeom(arg1, arg2, stopOnError = FALSE)) {
+        cli::cli_abort(
+            "{.arg {ref1}} and {.arg {ref2}} must have the same extent and resolution.",
+            .frame = parent.frame()
+        )
+    }
+} # nocov end

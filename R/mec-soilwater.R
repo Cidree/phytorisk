@@ -1,8 +1,9 @@
 
 
-#' Water inoculum movement
+#' Transport through soil water
 #'
-#' Simulates inoculum transport via water in the soil matrix
+#' Simulates the spread of *Phytophthora cinnamomi* inoculum within the
+#' soil matrix through the soil water
 #'
 #' @template dem
 #' @template poi
@@ -59,6 +60,11 @@ mec_soilwater <- function(dem, poi, th = 100, quiet = FALSE) {
   assert_same_crs(dem, "dem", poi, "poi")
   assert_positive_numeric(th, "th")
   assert_logic(quiet, "quiet")
+
+  ## Ensure POI is within the DEM
+  if (!terra::is.related(terra::vect(poi), dem, "intersects")) {
+    cli::cli_abort("{.arg poi} does not intersect with {.arg dem}.")
+  }
 
   ## Ensure flowdem is installed
   if (!requireNamespace("flowdem")) {

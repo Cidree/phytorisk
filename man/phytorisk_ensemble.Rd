@@ -43,5 +43,42 @@ Additionally, the user can specify a numeric vector of length
 3 or 4 specifying the desired weights based on expert criteria.
 }
 \examples{
-## TODO
+\donttest{
+## load packages
+library(phytorisk)
+library(sf)
+library(terra)
+
+## load data
+poi_sf <- st_read(
+  system.file("spatial/poi.geojson", package = "phytorisk"),
+  quiet = TRUE
+)
+dem_sr <- rast(system.file("spatial/dem_light.tiff", package = "phytorisk"))
+trees_sr <- rast(system.file("spatial/trees_light.tiff", package = "phytorisk"))
+aoi_sf <- st_read(
+  system.file("spatial/tejera.geojson", package = "phytorisk"),
+  quiet = TRUE
+)
+
+## first, calculate the individual mechanisms
+mec_soilwater_sr <- mec_soilwater(dem_sr, poi_sf)
+mec_surface_lst   <- mec_surfacewater(dem_sr, mec_soilwater_sr, poi_sf)
+mec_rootcontact_sr <- mec_rootcontact(trees_sr, aoi_sf, poi_sf)
+
+## calculate ensemble risk using equal weights
+risk_equal_sr <- phytorisk_ensemble(
+ mec_soilwater = mec_soilwater_sr,
+ mec_rootcontact = mec_rootcontact_sr,
+ mec_surfacewater = mec_surface_lst
+)
+
+## assign more weight to root-to-root contact
+risk_weighted_sr <- phytorisk_ensemble(
+ mec_soilwater = mec_soilwater_sr,
+ mec_rootcontact = mec_rootcontact_sr,
+ mec_surfacewater = mec_surface_lst,
+ weights = c(.3, .4, .3)
+)
+}
 }

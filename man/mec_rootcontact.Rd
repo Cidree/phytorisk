@@ -2,7 +2,7 @@
 % Please edit documentation in R/mec-rootcontact.R
 \name{mec_rootcontact}
 \alias{mec_rootcontact}
-\title{Root-to-root contact}
+\title{Transmission through root-to-root contact}
 \usage{
 mec_rootcontact(treecover, aoi, poi, quiet = FALSE)
 }
@@ -23,7 +23,8 @@ Defaults to \code{FALSE}.}
 A \code{SpatRaster}
 }
 \description{
-Simulates diffusive inoculum spread through root contact
+Simulates diffusive inoculum spread through root contact between
+neighbouring trees
 }
 \details{
 This function models inoculum movement due to root-to-root contact based on
