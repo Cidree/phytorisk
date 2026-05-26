@@ -1,6 +1,7 @@
-# Inoculum spread
+# Inoculum spread in surface water
 
-Simulates the spread of the inoculum in surface water flow
+Simulates the spread of the inoculum dispersal through surface water by
+integrating hydrological flow paths and wetness conditions
 
 ## Usage
 
@@ -80,7 +81,7 @@ trees_sr <- rast(system.file("spatial/trees_light.tiff", package = "phytorisk"))
 ## simulate mechanism
 mec_soilwater_sr <- mec_soilwater(dem_sr, poi_sf)
 #> ℹ Filling DEM...
-#> ✔ DEM filled [17ms]
+#> ✔ DEM filled [18ms]
 #> 
 #> ℹ Filling basins...
 #> ✔ Basins filled [24ms]
@@ -89,28 +90,28 @@ mec_soilwater_sr <- mec_soilwater(dem_sr, poi_sf)
 #> ✔ Depressions removed [17ms]
 #> 
 #> ℹ Filling depressions...
-#> ✔ Depressions filled [26ms]
+#> ✔ Depressions filled [31ms]
 #> 
 #> ℹ Getting flow directions...
 #> ✔ Flow directions [31ms]
 #> 
 #> ℹ Calculating flow accumulation...
-#> ✔ Flow accumulation calculated [39ms]
+#> ✔ Flow accumulation calculated [41ms]
 #> 
 #> ℹ Delineating streams...
-#> ✔ Streams delineated [33ms]
+#> ✔ Streams delineated [34ms]
 #> 
 #> ℹ Determining the wet front
-#> ✔ Wet front determined [819ms]
+#> ✔ Wet front determined [848ms]
 #> 
 mec_surface_sr <- mec_surfacewater(dem_sr, mec_soilwater_sr, poi_sf)
 #> ℹ Calculating natural drainage network...
-#> ✔ Natural drainage network calculated [74ms]
+#> ✔ Natural drainage network calculated [95ms]
 #> 
 #> ℹ Identifying surface water close to foci...
-#> ✔ Surface water close to foci identified [76ms]
+#> ✔ Surface water close to foci identified [62ms]
 #> 
 #> ℹ Finding connected pixels...
-#> ✔ Finished [901ms]
+#> ✔ Finished [928ms]
 #> 
 ```

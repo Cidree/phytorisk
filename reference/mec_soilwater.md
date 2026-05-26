@@ -1,6 +1,7 @@
-# Water inoculum movement
+# Transport through soil water
 
-Simulates inoculum transport via water in the soil matrix
+Simulates the spread of *Phytophthora cinnamomi* inoculum within the
+soil matrix through the soil water
 
 ## Usage
 
@@ -77,27 +78,27 @@ poi_sf <- st_read(
 mec_soilwater_sr <- mec_soilwater(dem_sr, poi_sf)
 #> Loading required namespace: flowdem
 #> ℹ Filling DEM...
-#> ✔ DEM filled [61ms]
+#> ✔ DEM filled [59ms]
 #> 
 #> ℹ Filling basins...
-#> ✔ Basins filled [33ms]
+#> ✔ Basins filled [36ms]
 #> 
 #> ℹ Removing depressions...
 #> ✔ Depressions removed [29ms]
 #> 
 #> ℹ Filling depressions...
-#> ✔ Depressions filled [29ms]
+#> ✔ Depressions filled [30ms]
 #> 
 #> ℹ Getting flow directions...
-#> ✔ Flow directions [29ms]
+#> ✔ Flow directions [30ms]
 #> 
 #> ℹ Calculating flow accumulation...
-#> ✔ Flow accumulation calculated [21ms]
+#> ✔ Flow accumulation calculated [20ms]
 #> 
 #> ℹ Delineating streams...
-#> ✔ Streams delineated [19ms]
+#> ✔ Streams delineated [20ms]
 #> 
 #> ℹ Determining the wet front
-#> ✔ Wet front determined [907ms]
+#> ✔ Wet front determined [930ms]
 #> 
 ```

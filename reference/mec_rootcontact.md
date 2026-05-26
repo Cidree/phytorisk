@@ -1,6 +1,7 @@
-# Root-to-root contact
+# Transmission through root-to-root contact
 
-Simulates diffusive inoculum spread through root contact
+Simulates diffusive inoculum spread through root contact between
+neighbouring trees
 
 ## Usage
 
@@ -82,10 +83,10 @@ trees_sr <- rast(system.file("spatial/trees_light.tiff", package = "phytorisk"))
 ## simulate mechanism
 mec_rootcontact_sr <- mec_rootcontact(trees_sr, study_area_sf, poi_sf)
 #> ℹ Preparing tree data...
-#> ✔ Tree data prepared [44ms]
+#> ✔ Tree data prepared [45ms]
 #> 
 #> ℹ Finding root-to-root contact...
-#> ✔ Finished [13.1s]
+#> ✔ Finished [13.4s]
 #> 
 # }
 ```

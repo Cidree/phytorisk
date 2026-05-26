@@ -64,5 +64,81 @@ or 4 specifying the desired weights based on expert criteria.
 ## Examples
 
 ``` r
-## TODO
+# \donttest{
+## load packages
+library(phytorisk)
+library(sf)
+library(terra)
+
+## load data
+poi_sf <- st_read(
+  system.file("spatial/poi.geojson", package = "phytorisk"),
+  quiet = TRUE
+)
+dem_sr <- rast(system.file("spatial/dem_light.tiff", package = "phytorisk"))
+trees_sr <- rast(system.file("spatial/trees_light.tiff", package = "phytorisk"))
+aoi_sf <- st_read(
+  system.file("spatial/tejera.geojson", package = "phytorisk"),
+  quiet = TRUE
+)
+
+## first, calculate the individual mechanisms
+mec_soilwater_sr <- mec_soilwater(dem_sr, poi_sf)
+#> ℹ Filling DEM...
+#> ✔ DEM filled [16ms]
+#> 
+#> ℹ Filling basins...
+#> ✔ Basins filled [22ms]
+#> 
+#> ℹ Removing depressions...
+#> ✔ Depressions removed [15ms]
+#> 
+#> ℹ Filling depressions...
+#> ✔ Depressions filled [17ms]
+#> 
+#> ℹ Getting flow directions...
+#> ✔ Flow directions [16ms]
+#> 
+#> ℹ Calculating flow accumulation...
+#> ✔ Flow accumulation calculated [22ms]
+#> 
+#> ℹ Delineating streams...
+#> ✔ Streams delineated [18ms]
+#> 
+#> ℹ Determining the wet front
+#> ✔ Wet front determined [498ms]
+#> 
+mec_surface_lst   <- mec_surfacewater(dem_sr, mec_soilwater_sr, poi_sf)
+#> ℹ Calculating natural drainage network...
+#> ✔ Natural drainage network calculated [35ms]
+#> 
+#> ℹ Identifying surface water close to foci...
+#> ✔ Surface water close to foci identified [37ms]
+#> 
+#> ℹ Finding connected pixels...
+#> ✔ Finished [548ms]
+#> 
+mec_rootcontact_sr <- mec_rootcontact(trees_sr, aoi_sf, poi_sf)
+#> ℹ Preparing tree data...
+#> ✔ Tree data prepared [108ms]
+#> 
+#> ℹ Finding root-to-root contact...
+#> ✔ Finished [13.6s]
+#> 
+
+## calculate ensemble risk using equal weights
+risk_equal_sr <- phytorisk_ensemble(
+ mec_soilwater = mec_soilwater_sr,
+ mec_rootcontact = mec_rootcontact_sr,
+ mec_surfacewater = mec_surface_lst
+)
+
+## assign more weight to root-to-root contact
+risk_weighted_sr <- phytorisk_ensemble(
+ mec_soilwater = mec_soilwater_sr,
+ mec_rootcontact = mec_rootcontact_sr,
+ mec_surfacewater = mec_surface_lst,
+ weights = c(.3, .4, .3)
+)
+# }
 ```

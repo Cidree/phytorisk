@@ -3,11 +3,11 @@
 ## Mechanisms
 
 - [`mec_rootcontact()`](https://cidree.github.io/phytorisk/reference/mec_rootcontact.md)
-  : Root-to-root contact
+  : Transmission through root-to-root contact
 - [`mec_soilwater()`](https://cidree.github.io/phytorisk/reference/mec_soilwater.md)
-  : Water inoculum movement
+  : Transport through soil water
 - [`mec_surfacewater()`](https://cidree.github.io/phytorisk/reference/mec_surfacewater.md)
-  : Inoculum spread
+  : Inoculum spread in surface water
 - [`mec_zoospread()`](https://cidree.github.io/phytorisk/reference/mec_zoospread.md)
   : Dispersion by animals
 

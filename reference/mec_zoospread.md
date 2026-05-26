@@ -9,7 +9,7 @@ movement
 mec_zoospread(
   aoi,
   poi,
-  mec_surface,
+  mec_surfacewater,
   n_animals = 5,
   n_steps = 100,
   pixel_size = 1,
@@ -31,7 +31,7 @@ mec_zoospread(
   A single-point `sf` object denoting the point of interest to run the
   simulations
 
-- mec_surface:
+- mec_surfacewater:
 
   The result of
   [mec_surfacewater](https://cidree.github.io/phytorisk/reference/mec_surfacewater.md)
@@ -95,6 +95,80 @@ Spanish heathland. PloS One 13, e0195060.
 ## Examples
 
 ``` r
+# \donttest{
 ## load packages
-# TODO
+library(phytorisk)
+library(sf)
+library(terra)
+
+## load data
+poi_sf <- st_read(
+  system.file("spatial/poi.geojson", package = "phytorisk"),
+  quiet = TRUE
+)
+dem_sr <- rast(system.file("spatial/dem_light.tiff", package = "phytorisk"))
+trees_sr <- rast(system.file("spatial/trees_light.tiff", package = "phytorisk"))
+aoi_sf <- st_read(
+  system.file("spatial/tejera.geojson", package = "phytorisk"),
+  quiet = TRUE
+)
+
+## first, calculate the soil water and surface water dispersal mechanisms
+mec_soilwater_sr <- mec_soilwater(dem_sr, poi_sf)
+#> ℹ Filling DEM...
+#> ✔ DEM filled [17ms]
+#> 
+#> ℹ Filling basins...
+#> ✔ Basins filled [25ms]
+#> 
+#> ℹ Removing depressions...
+#> ✔ Depressions removed [29ms]
+#> 
+#> ℹ Filling depressions...
+#> ✔ Depressions filled [31ms]
+#> 
+#> ℹ Getting flow directions...
+#> ✔ Flow directions [30ms]
+#> 
+#> ℹ Calculating flow accumulation...
+#> ✔ Flow accumulation calculated [29ms]
+#> 
+#> ℹ Delineating streams...
+#> ✔ Streams delineated [33ms]
+#> 
+#> ℹ Determining the wet front
+#> ✔ Wet front determined [729ms]
+#> 
+mec_surface_sr   <- mec_surfacewater(dem_sr, mec_soilwater_sr, poi_sf)
+#> ℹ Calculating natural drainage network...
+#> ✔ Natural drainage network calculated [70ms]
+#> 
+#> ℹ Identifying surface water close to foci...
+#> ✔ Surface water close to foci identified [74ms]
+#> 
+#> ℹ Finding connected pixels...
+#> ✔ Finished [850ms]
+#> 
+
+## calculate the spread by animals (dummy example)
+mec_zoospread_sr <- mec_zoospread(
+  aoi = aoi_sf,
+  poi = poi_sf,
+  mec_surface = mec_surface_sr,
+  n_animals = 5,
+  n_steps = 5,
+  pixel_size = 1,
+  n_iter = 2,
+  dist = 5
+)
+#> 
+#> ── Starting animal movement simulation ──
+#> 
+#> ✔ Simulation completed. 2 trajectories generated.
+#> ℹ Preparing results
+#> ! There are no trajectories within 5 meters of the inoculum
+#> ℹ Preparing results
+#> ✔ Success [25ms]
+#> 
+# }
 ```
