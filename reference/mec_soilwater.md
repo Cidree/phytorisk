@@ -78,27 +78,27 @@ poi_sf <- st_read(
 mec_soilwater_sr <- mec_soilwater(dem_sr, poi_sf)
 #> Loading required namespace: flowdem
 #> ℹ Filling DEM...
-#> ✔ DEM filled [59ms]
+#> ✔ DEM filled [75ms]
 #> 
 #> ℹ Filling basins...
-#> ✔ Basins filled [36ms]
+#> ✔ Basins filled [26ms]
 #> 
 #> ℹ Removing depressions...
-#> ✔ Depressions removed [29ms]
+#> ✔ Depressions removed [25ms]
 #> 
 #> ℹ Filling depressions...
-#> ✔ Depressions filled [30ms]
+#> ✔ Depressions filled [38ms]
 #> 
 #> ℹ Getting flow directions...
-#> ✔ Flow directions [30ms]
+#> ✔ Flow directions [32ms]
 #> 
 #> ℹ Calculating flow accumulation...
-#> ✔ Flow accumulation calculated [20ms]
+#> ✔ Flow accumulation calculated [30ms]
 #> 
 #> ℹ Delineating streams...
-#> ✔ Streams delineated [20ms]
+#> ✔ Streams delineated [26ms]
 #> 
 #> ℹ Determining the wet front
-#> ✔ Wet front determined [930ms]
+#> ✔ Wet front determined [932ms]
 #> 
 ```

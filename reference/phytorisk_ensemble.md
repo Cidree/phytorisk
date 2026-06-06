@@ -94,36 +94,36 @@ mec_soilwater_sr <- mec_soilwater(dem_sr, poi_sf)
 #> ✔ Depressions removed [15ms]
 #> 
 #> ℹ Filling depressions...
-#> ✔ Depressions filled [17ms]
+#> ✔ Depressions filled [16ms]
 #> 
 #> ℹ Getting flow directions...
 #> ✔ Flow directions [16ms]
 #> 
 #> ℹ Calculating flow accumulation...
-#> ✔ Flow accumulation calculated [22ms]
+#> ✔ Flow accumulation calculated [15ms]
 #> 
 #> ℹ Delineating streams...
 #> ✔ Streams delineated [18ms]
 #> 
 #> ℹ Determining the wet front
-#> ✔ Wet front determined [498ms]
+#> ✔ Wet front determined [493ms]
 #> 
 mec_surface_lst   <- mec_surfacewater(dem_sr, mec_soilwater_sr, poi_sf)
 #> ℹ Calculating natural drainage network...
 #> ✔ Natural drainage network calculated [35ms]
 #> 
 #> ℹ Identifying surface water close to foci...
-#> ✔ Surface water close to foci identified [37ms]
+#> ✔ Surface water close to foci identified [36ms]
 #> 
 #> ℹ Finding connected pixels...
-#> ✔ Finished [548ms]
+#> ✔ Finished [532ms]
 #> 
 mec_rootcontact_sr <- mec_rootcontact(trees_sr, aoi_sf, poi_sf)
 #> ℹ Preparing tree data...
-#> ✔ Tree data prepared [108ms]
+#> ✔ Tree data prepared [109ms]
 #> 
 #> ℹ Finding root-to-root contact...
-#> ✔ Finished [13.6s]
+#> ✔ Finished [13.3s]
 #> 
 
 ## calculate ensemble risk using equal weights

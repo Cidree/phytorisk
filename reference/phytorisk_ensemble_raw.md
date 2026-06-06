@@ -80,6 +80,44 @@ phytorisk_ensemble_raw(
 
 A `SpatRaster`
 
+## Details
+
+This function is a one-step convenience wrapper around the four
+dispersal mechanism functions and
+[phytorisk_ensemble](https://cidree.github.io/phytorisk/reference/phytorisk_ensemble.md).
+It runs the following pipeline internally:
+
+1.  [mec_soilwater](https://cidree.github.io/phytorisk/reference/mec_soilwater.md)
+    — models *Pc* spread through soil water pathways using flow
+    direction and accumulation derived from `dem`. The `th` argument
+    controls the flow-accumulation threshold used to delineate streams.
+
+2.  [mec_rootcontact](https://cidree.github.io/phytorisk/reference/mec_rootcontact.md)
+    — models root-to-root transmission across a 3×3 spatial window over
+    the `treecover` raster within `aoi`.
+
+3.  [mec_surfacewater](https://cidree.github.io/phytorisk/reference/mec_surfacewater.md)
+    — models surface water spread using the Topographic Wetness Index
+    derived from `dem`. It receives the output of
+    [mec_soilwater](https://cidree.github.io/phytorisk/reference/mec_soilwater.md)
+    directly; `buffer` extends the detected water bodies before
+    computing risk.
+
+4.  [mec_zoospread](https://cidree.github.io/phytorisk/reference/mec_zoospread.md)
+    (optional) — simulates animal-mediated dispersal trajectories within
+    `aoi`. Only executed when `include_zoospread = TRUE`; additional
+    arguments via `...` are forwarded to this function.
+
+The four mechanism outputs are then combined by
+[phytorisk_ensemble](https://cidree.github.io/phytorisk/reference/phytorisk_ensemble.md)
+into a single ensemble risk surface. See
+[phytorisk_ensemble](https://cidree.github.io/phytorisk/reference/phytorisk_ensemble.md)
+for details on how `weights` are applied.
+
+When `append_mec = TRUE` the individual mechanism rasters are
+concatenated with the ensemble layer in the returned `SpatRaster`,
+allowing inspection of each component alongside the final risk surface.
+
 ## Examples
 
 ``` r
@@ -112,47 +150,47 @@ risk_equal_sr <- phytorisk_ensemble_raw(
 #> 
 #> ── Mec Ii - Spread in soil water ───────────────────────────────────────────────
 #> ℹ Filling DEM...
-#> ✔ DEM filled [26ms]
+#> ✔ DEM filled [17ms]
 #> 
 #> ℹ Filling basins...
-#> ✔ Basins filled [41ms]
+#> ✔ Basins filled [40ms]
 #> 
 #> ℹ Removing depressions...
-#> ✔ Depressions removed [28ms]
+#> ✔ Depressions removed [29ms]
 #> 
 #> ℹ Filling depressions...
-#> ✔ Depressions filled [18ms]
+#> ✔ Depressions filled [30ms]
 #> 
 #> ℹ Getting flow directions...
-#> ✔ Flow directions [18ms]
+#> ✔ Flow directions [30ms]
 #> 
 #> ℹ Calculating flow accumulation...
-#> ✔ Flow accumulation calculated [17ms]
+#> ✔ Flow accumulation calculated [29ms]
 #> 
 #> ℹ Delineating streams...
-#> ✔ Streams delineated [28ms]
+#> ✔ Streams delineated [23ms]
 #> 
 #> ℹ Determining the wet front
-#> ✔ Wet front determined [763ms]
+#> ✔ Wet front determined [700ms]
 #> 
 #> 
 #> ── Mec Iii - Root-to-root contact ──────────────────────────────────────────────
 #> ℹ Preparing tree data...
-#> ✔ Tree data prepared [52ms]
+#> ✔ Tree data prepared [63ms]
 #> 
 #> ℹ Finding root-to-root contact...
-#> ✔ Finished [13.5s]
+#> ✔ Finished [13.4s]
 #> 
 #> 
 #> ── Mec II - Spread in surface water ────────────────────────────────────────────
 #> ℹ Calculating natural drainage network...
-#> ✔ Natural drainage network calculated [54ms]
+#> ✔ Natural drainage network calculated [39ms]
 #> 
 #> ℹ Identifying surface water close to foci...
-#> ✔ Surface water close to foci identified [57ms]
+#> ✔ Surface water close to foci identified [54ms]
 #> 
 #> ℹ Finding connected pixels...
-#> ✔ Finished [833ms]
+#> ✔ Finished [821ms]
 #> 
 
 ## visualize results

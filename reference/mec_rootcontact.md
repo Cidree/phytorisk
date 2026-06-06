@@ -83,10 +83,10 @@ trees_sr <- rast(system.file("spatial/trees_light.tiff", package = "phytorisk"))
 ## simulate mechanism
 mec_rootcontact_sr <- mec_rootcontact(trees_sr, study_area_sf, poi_sf)
 #> ℹ Preparing tree data...
-#> ✔ Tree data prepared [45ms]
+#> ✔ Tree data prepared [44ms]
 #> 
 #> ℹ Finding root-to-root contact...
-#> ✔ Finished [13.4s]
+#> ✔ Finished [13.5s]
 #> 
 # }
 ```

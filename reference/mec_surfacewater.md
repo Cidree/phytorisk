@@ -81,37 +81,37 @@ trees_sr <- rast(system.file("spatial/trees_light.tiff", package = "phytorisk"))
 ## simulate mechanism
 mec_soilwater_sr <- mec_soilwater(dem_sr, poi_sf)
 #> ℹ Filling DEM...
-#> ✔ DEM filled [18ms]
+#> ✔ DEM filled [26ms]
 #> 
 #> ℹ Filling basins...
-#> ✔ Basins filled [24ms]
+#> ✔ Basins filled [25ms]
 #> 
 #> ℹ Removing depressions...
-#> ✔ Depressions removed [17ms]
+#> ✔ Depressions removed [19ms]
 #> 
 #> ℹ Filling depressions...
-#> ✔ Depressions filled [31ms]
+#> ✔ Depressions filled [20ms]
 #> 
 #> ℹ Getting flow directions...
-#> ✔ Flow directions [31ms]
+#> ✔ Flow directions [26ms]
 #> 
 #> ℹ Calculating flow accumulation...
-#> ✔ Flow accumulation calculated [41ms]
+#> ✔ Flow accumulation calculated [43ms]
 #> 
 #> ℹ Delineating streams...
-#> ✔ Streams delineated [34ms]
+#> ✔ Streams delineated [36ms]
 #> 
 #> ℹ Determining the wet front
-#> ✔ Wet front determined [848ms]
+#> ✔ Wet front determined [843ms]
 #> 
 mec_surface_sr <- mec_surfacewater(dem_sr, mec_soilwater_sr, poi_sf)
 #> ℹ Calculating natural drainage network...
-#> ✔ Natural drainage network calculated [95ms]
+#> ✔ Natural drainage network calculated [99ms]
 #> 
 #> ℹ Identifying surface water close to foci...
-#> ✔ Surface water close to foci identified [62ms]
+#> ✔ Surface water close to foci identified [81ms]
 #> 
 #> ℹ Finding connected pixels...
-#> ✔ Finished [928ms]
+#> ✔ Finished [897ms]
 #> 
 ```

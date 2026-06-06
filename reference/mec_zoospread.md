@@ -116,38 +116,38 @@ aoi_sf <- st_read(
 ## first, calculate the soil water and surface water dispersal mechanisms
 mec_soilwater_sr <- mec_soilwater(dem_sr, poi_sf)
 #> ℹ Filling DEM...
-#> ✔ DEM filled [17ms]
+#> ✔ DEM filled [25ms]
 #> 
 #> ℹ Filling basins...
 #> ✔ Basins filled [25ms]
 #> 
 #> ℹ Removing depressions...
-#> ✔ Depressions removed [29ms]
+#> ✔ Depressions removed [18ms]
 #> 
 #> ℹ Filling depressions...
-#> ✔ Depressions filled [31ms]
+#> ✔ Depressions filled [19ms]
 #> 
 #> ℹ Getting flow directions...
-#> ✔ Flow directions [30ms]
+#> ✔ Flow directions [32ms]
 #> 
 #> ℹ Calculating flow accumulation...
-#> ✔ Flow accumulation calculated [29ms]
+#> ✔ Flow accumulation calculated [30ms]
 #> 
 #> ℹ Delineating streams...
-#> ✔ Streams delineated [33ms]
+#> ✔ Streams delineated [34ms]
 #> 
 #> ℹ Determining the wet front
-#> ✔ Wet front determined [729ms]
+#> ✔ Wet front determined [732ms]
 #> 
 mec_surface_sr   <- mec_surfacewater(dem_sr, mec_soilwater_sr, poi_sf)
 #> ℹ Calculating natural drainage network...
-#> ✔ Natural drainage network calculated [70ms]
+#> ✔ Natural drainage network calculated [69ms]
 #> 
 #> ℹ Identifying surface water close to foci...
-#> ✔ Surface water close to foci identified [74ms]
+#> ✔ Surface water close to foci identified [96ms]
 #> 
 #> ℹ Finding connected pixels...
-#> ✔ Finished [850ms]
+#> ✔ Finished [843ms]
 #> 
 
 ## calculate the spread by animals (dummy example)
@@ -168,7 +168,7 @@ mec_zoospread_sr <- mec_zoospread(
 #> ℹ Preparing results
 #> ! There are no trajectories within 5 meters of the inoculum
 #> ℹ Preparing results
-#> ✔ Success [25ms]
+#> ✔ Success [26ms]
 #> 
 # }
 ```

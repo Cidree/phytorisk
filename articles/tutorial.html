@@ -43,7 +43,7 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-tutorials" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Tutorials</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-tutorials">
-<li><a class="dropdown-item" href="../articles/tutorial.html">Tutorial 1</a></li>
+<li><a class="dropdown-item" href="../articles/tutorial.html">Introduction to Phytorisk</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">News</a></li>
@@ -73,7 +73,7 @@
       <h1>Phytorisk Tutorial</h1>
 
 
-      <p class="date">2026-05-26</p>
+      <p class="date">2026-06-06</p>
 
 
       <div class="d-none name"><code></code></div>
@@ -84,15 +84,514 @@
 
 
 
-    <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://cidree.github.io/phytorisk/">phytorisk</a></span><span class="op">)</span></span></code></pre></div>
+    <section class="level2"><h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
+</h2>
+<p><em>Phytophthora cinnamomi</em> (Pc) is an oomycete pathogen responsible for one of the most widespread and destructive plant diseases in the world. It causes root rot in thousands of susceptible plant species and has been listed among the 100 worst invasive species globally by the IUCN. Its spread is driven by four main dispersal mechanisms:</p>
+<ol type="1">
+<li>
+<strong>Soil water</strong> — zoospores and mycelium are transported through the soil matrix following subsurface water flow paths.</li>
+<li>
+<strong>Root-to-root contact</strong> — mycelium grows directly from the root system of an infected tree into adjacent roots of susceptible hosts.</li>
+<li>
+<strong>Surface water</strong> — zoospores are carried by overland flow along streams, wetlands, and flooded areas.</li>
+<li>
+<strong>Animal movement</strong> — livestock, wild boar, and other animals mechanically transport infested soil on their hooves, fur, or digestive tract.</li>
+</ol>
+<p>The <code>phytorisk</code> package models each mechanism separately and combines the outputs into an ensemble invasion risk surface. This tutorial walks through a complete analysis using the sample data bundled with the package.</p>
+<div>
+<blockquote>
+<p><strong>Note</strong></p>
+<p>To install the package and run this tutorial on your own machine, follow <a href="index.html">these instructions</a>.</p>
+</blockquote>
 </div>
-<p>Placeholder</p>
-
-
-
-<script id="quarto-html-after-body" type="application/javascript">
+</section><section class="level2"><h2 id="sample-data">Sample Data<a class="anchor" aria-label="anchor" href="#sample-data"></a>
+</h2>
+<p>The package ships with sample spatial data for the <em>Tejera</em> study area — a forest stand where Pc presence has been confirmed. Load all inputs upfront:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## study area polygon</span></span>
+<span><span class="va">aoi_sf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_read.html" class="external-link">st_read</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"spatial/tejera.geojson"</span>, package <span class="op">=</span> <span class="st">"phytorisk"</span><span class="op">)</span>,</span>
+<span>  quiet <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## known infection foci (points of interest)</span></span>
+<span><span class="va">poi_sf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_read.html" class="external-link">st_read</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"spatial/poi.geojson"</span>, package <span class="op">=</span> <span class="st">"phytorisk"</span><span class="op">)</span>,</span>
+<span>  quiet <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## digital elevation model</span></span>
+<span><span class="va">dem_sr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"spatial/dem.tiff"</span>, package <span class="op">=</span> <span class="st">"phytorisk"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## tree cover raster</span></span>
+<span><span class="va">trees_sr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"spatial/trees.tiff"</span>, package <span class="op">=</span> <span class="st">"phytorisk"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</div>
+<p>A quick look at the study area and infection foci:</p>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_spatraster</span><span class="op">(</span>data <span class="op">=</span> <span class="va">dem_sr</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">scale_fill_hypso_c</span><span class="op">(</span></span>
+<span>    name     <span class="op">=</span> <span class="st">"Elevation (m)"</span>,</span>
+<span>    na.value <span class="op">=</span> <span class="st">"transparent"</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_sf</span><span class="op">(</span></span>
+<span>    data <span class="op">=</span> <span class="va">aoi_sf</span>, </span>
+<span>    fill <span class="op">=</span> <span class="cn">NA</span>, </span>
+<span>    color <span class="op">=</span> <span class="st">"white"</span>, </span>
+<span>    linewidth <span class="op">=</span> <span class="fl">0.8</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_sf</span><span class="op">(</span></span>
+<span>    data <span class="op">=</span> <span class="va">poi_sf</span>, </span>
+<span>    color <span class="op">=</span> <span class="st">"red"</span>, </span>
+<span>    size <span class="op">=</span> <span class="fl">3</span>, </span>
+<span>    shape <span class="op">=</span> <span class="fl">21</span>,</span>
+<span>    fill <span class="op">=</span> <span class="st">"red"</span>, </span>
+<span>    alpha <span class="op">=</span> <span class="fl">0.8</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">labs</span><span class="op">(</span></span>
+<span>    title <span class="op">=</span> <span class="st">"Study Area — Tejera"</span>,</span>
+<span>    subtitle <span class="op">=</span> <span class="st">"Red points indicate confirmed Phytophthora cinnamomi foci"</span>,</span>
+<span>    x <span class="op">=</span> <span class="cn">NULL</span>, y <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">theme_minimal</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">theme</span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"right"</span><span class="op">)</span></span></code></pre></div>
+</details><div class="cell-output-display">
+<div id="fig-data" class="quarto-float quarto-figure quarto-figure-center" width="672">
+<figure class="quarto-float quarto-float-fig"><div aria-describedby="fig-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="tutorial_files/figure-html/fig-data-1.png" id="fig-data" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure 1
+</figcaption></figure>
+</div>
+</div>
+</div>
+</section><section class="level2"><h2 id="dispersal-mechanisms">Dispersal Mechanisms<a class="anchor" aria-label="anchor" href="#dispersal-mechanisms"></a>
+</h2>
+<section class="level3"><h3 id="soil-water-mec_soilwater">1. Soil Water (<code>mec_soilwater</code>)<a class="anchor" aria-label="anchor" href="#soil-water-mec_soilwater"></a>
+</h3>
+<p><em>Phytophthora cinnamomi</em> produces biflagellate zoospores that swim actively in the soil water film. Under wet or intermediate moisture conditions, the inoculum follows the same subsurface flow paths determined by local topography. The function derives flow direction and accumulation from the DEM using the D8 algorithm, then traces the wet front downstream from each infection focus.</p>
+<p>The <code>th</code> argument sets the flow-accumulation threshold used to delineate streams (default: 100 contributing cells). The result is a two-layer <code>SpatRaster</code>: <code>mec_soilwater</code> (binary risk) and <code>streams</code> (delineated drainage network).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mec_soilwater_sr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mec_soilwater.html">mec_soilwater</a></span><span class="op">(</span><span class="va">dem_sr</span>, <span class="va">poi_sf</span>, th <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Loading required namespace: flowdem</span></span>
+<span><span class="co">#&gt; ℹ Filling DEM...</span></span>
+<span><span class="co">#&gt; ✔ DEM filled [152ms]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Filling basins...</span></span>
+<span><span class="co">#&gt; ✔ Basins filled [73ms]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Removing depressions...</span></span>
+<span><span class="co">#&gt; ✔ Depressions removed [94ms]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Filling depressions...</span></span>
+<span><span class="co">#&gt; ✔ Depressions filled [57ms]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Getting flow directions...</span></span>
+<span><span class="co">#&gt; ✔ Flow directions [35ms]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Calculating flow accumulation...</span></span>
+<span><span class="co">#&gt; ✔ Flow accumulation calculated [38ms]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Delineating streams...</span></span>
+<span><span class="co">#&gt; ✔ Streams delineated [20ms]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Determining the wet front</span></span>
+<span><span class="co">#&gt; ✔ Wet front determined [7.3s]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="va">mec_soilwater_sr</span></span>
+<span><span class="co">#&gt; class       : SpatRaster</span></span>
+<span><span class="co">#&gt; size        : 415, 366, 2  (nrow, ncol, nlyr)</span></span>
+<span><span class="co">#&gt; resolution  : 2, 2  (x, y)</span></span>
+<span><span class="co">#&gt; extent      : 332469, 333201, 4206413, 4207243  (xmin, xmax, ymin, ymax)</span></span>
+<span><span class="co">#&gt; coord. ref. : ETRS89 / UTM zone 30N (EPSG:25830)</span></span>
+<span><span class="co">#&gt; source(s)   : memory</span></span>
+<span><span class="co">#&gt; varnames    : </span></span>
+<span><span class="co">#&gt;               dem</span></span>
+<span><span class="co">#&gt; names       : mec_soilwater, streams</span></span>
+<span><span class="co">#&gt; min values  :             0,       0</span></span>
+<span><span class="co">#&gt; max values  :             1,       1</span></span></code></pre></div>
+</div>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_spatraster</span><span class="op">(</span>data <span class="op">=</span> <span class="va">mec_soilwater_sr</span><span class="op">[</span><span class="st">"mec_soilwater"</span><span class="op">]</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_sf</span><span class="op">(</span>data <span class="op">=</span> <span class="va">aoi_sf</span>, fill <span class="op">=</span> <span class="cn">NA</span>, color <span class="op">=</span> <span class="st">"grey30"</span>, linewidth <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_sf</span><span class="op">(</span>data <span class="op">=</span> <span class="va">poi_sf</span>, color <span class="op">=</span> <span class="st">"red"</span>, size <span class="op">=</span> <span class="fl">3</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">scale_fill_gradient</span><span class="op">(</span></span>
+<span>    low <span class="op">=</span> <span class="st">"#F7FBFF"</span>, </span>
+<span>    high <span class="op">=</span> <span class="st">"#F5B8AB"</span>,</span>
+<span>    na.value <span class="op">=</span> <span class="st">"transparent"</span>,</span>
+<span>    name <span class="op">=</span> <span class="st">"Risk"</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">labs</span><span class="op">(</span></span>
+<span>    title <span class="op">=</span> <span class="st">"Soil Water Dispersal"</span>,</span>
+<span>    subtitle <span class="op">=</span> <span class="st">"Binary risk surface derived from subsurface flow paths"</span>,</span>
+<span>    x <span class="op">=</span> <span class="cn">NULL</span>, y <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">theme_minimal</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+</details><div class="cell-output-display">
+<div id="fig-soilwater" class="quarto-float quarto-figure quarto-figure-center" width="672">
+<figure class="quarto-float quarto-float-fig"><div aria-describedby="fig-soilwater-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="tutorial_files/figure-html/fig-soilwater-1.png" id="fig-soilwater" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-soilwater-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure 2
+</figcaption></figure>
+</div>
+</div>
+</div>
+</section><section class="level3"><h3 id="root-to-root-contact-mec_rootcontact">2. Root-to-Root Contact (<code>mec_rootcontact</code>)<a class="anchor" aria-label="anchor" href="#root-to-root-contact-mec_rootcontact"></a>
+</h3>
+<p>When tree roots from an infected individual come into physical contact with the roots of a neighbouring host, mycelium can grow directly across the junction. This mechanism depends entirely on spatial tree continuity: if a gap exists between the crown projections of adjacent trees (i.e., no pixel-to-pixel contact), the infection cannot spread via this pathway.</p>
+<p>The function uses a 3×3 focal window to identify connected tree-cover pixels, then applies a flood-fill algorithm from each focus to trace all pixels that are reachable through continuous root contact within the study area.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mec_rootcontact_sr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mec_rootcontact.html">mec_rootcontact</a></span><span class="op">(</span><span class="va">trees_sr</span>, <span class="va">aoi_sf</span>, <span class="va">poi_sf</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ℹ Preparing tree data...</span></span>
+<span><span class="co">#&gt; ✔ Tree data prepared [533ms]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Finding root-to-root contact...</span></span>
+<span><span class="co">#&gt; ✔ Finished [4.1s]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="va">mec_rootcontact_sr</span></span>
+<span><span class="co">#&gt; class       : SpatRaster</span></span>
+<span><span class="co">#&gt; size        : 415, 366, 1  (nrow, ncol, nlyr)</span></span>
+<span><span class="co">#&gt; resolution  : 2, 2  (x, y)</span></span>
+<span><span class="co">#&gt; extent      : 332469, 333201, 4206413, 4207243  (xmin, xmax, ymin, ymax)</span></span>
+<span><span class="co">#&gt; coord. ref. : ETRS89 / UTM zone 30N (EPSG:25830)</span></span>
+<span><span class="co">#&gt; source(s)   : memory</span></span>
+<span><span class="co">#&gt; varname     : trees</span></span>
+<span><span class="co">#&gt; name        : mec_rootcontact</span></span>
+<span><span class="co">#&gt; min value   :               0</span></span>
+<span><span class="co">#&gt; max value   :               1</span></span></code></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_spatraster</span><span class="op">(</span>data <span class="op">=</span> <span class="va">mec_rootcontact_sr</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_sf</span><span class="op">(</span>data <span class="op">=</span> <span class="va">aoi_sf</span>, fill <span class="op">=</span> <span class="cn">NA</span>, color <span class="op">=</span> <span class="st">"grey30"</span>, linewidth <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_sf</span><span class="op">(</span>data <span class="op">=</span> <span class="va">poi_sf</span>, color <span class="op">=</span> <span class="st">"red"</span>, size <span class="op">=</span> <span class="fl">3</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">scale_fill_gradient</span><span class="op">(</span></span>
+<span>    low <span class="op">=</span> <span class="st">"#F7FBFF"</span>, high <span class="op">=</span> <span class="st">"#F5B8AB"</span>,</span>
+<span>    na.value <span class="op">=</span> <span class="st">"transparent"</span>,</span>
+<span>    name <span class="op">=</span> <span class="st">"Risk"</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">labs</span><span class="op">(</span></span>
+<span>    title <span class="op">=</span> <span class="st">"Root-to-Root Contact Dispersal"</span>,</span>
+<span>    subtitle <span class="op">=</span> <span class="st">"Flood-fill propagation through spatially continuous tree cover"</span>,</span>
+<span>    x <span class="op">=</span> <span class="cn">NULL</span>, y <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">theme_minimal</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output-display">
+<div id="fig-rootcontact" class="quarto-float quarto-figure quarto-figure-center" width="672">
+<figure class="quarto-float quarto-float-fig"><div aria-describedby="fig-rootcontact-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="tutorial_files/figure-html/fig-rootcontact-1.png" id="fig-rootcontact" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-rootcontact-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure 3
+</figcaption></figure>
+</div>
+</div>
+</div>
+</section><section class="level3"><h3 id="surface-water-mec_surfacewater">3. Surface Water (<code>mec_surfacewater</code>)<a class="anchor" aria-label="anchor" href="#surface-water-mec_surfacewater"></a>
+</h3>
+<p>When the soil water front (Mechanism 1) reaches a stream or wetland, zoospores enter the surface drainage network and are carried downstream. The function identifies the nearest surface water body to the infection focus and traces all connected surface water features. Wetlands are detected using the Topographic Wetness Index (TWI; pixels above the 90th percentile), which is combined with the drainage network from <code>mec_soilwater</code>.</p>
+<p>This function requires the output of <code><a href="../reference/mec_soilwater.html">mec_soilwater()</a></code> as an input, so always run that first.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mec_surface_lst</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mec_surfacewater.html">mec_surfacewater</a></span><span class="op">(</span><span class="va">dem_sr</span>, <span class="va">mec_soilwater_sr</span>, <span class="va">poi_sf</span>, buffer <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ℹ Calculating natural drainage network...</span></span>
+<span><span class="co">#&gt; ✔ Natural drainage network calculated [318ms]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Identifying surface water close to foci...</span></span>
+<span><span class="co">#&gt; ✔ Surface water close to foci identified [45ms]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Finding connected pixels...</span></span>
+<span><span class="co">#&gt; ✔ Finished [28.3s]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span></span>
+<span><span class="co">## the result is a list: the risk raster and the surface water polygon</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">mec_surface_lst</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "mec_surfacewater" "surface_water"</span></span></code></pre></div>
+</div>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_spatraster</span><span class="op">(</span>data <span class="op">=</span> <span class="va">mec_surface_lst</span><span class="op">$</span><span class="va">mec_surfacewater</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_sf</span><span class="op">(</span>data <span class="op">=</span> <span class="va">mec_surface_lst</span><span class="op">$</span><span class="va">surface_water</span>,</span>
+<span>          fill <span class="op">=</span> <span class="st">"#4393C3"</span>, color <span class="op">=</span> <span class="cn">NA</span>, alpha <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_sf</span><span class="op">(</span>data <span class="op">=</span> <span class="va">aoi_sf</span>, fill <span class="op">=</span> <span class="cn">NA</span>, color <span class="op">=</span> <span class="st">"grey30"</span>, linewidth <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_sf</span><span class="op">(</span>data <span class="op">=</span> <span class="va">poi_sf</span>, color <span class="op">=</span> <span class="st">"red"</span>, size <span class="op">=</span> <span class="fl">3</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">scale_fill_gradient</span><span class="op">(</span></span>
+<span>    low <span class="op">=</span> <span class="st">"#F7FBFF"</span>, high <span class="op">=</span> <span class="st">"#eb2b00"</span>,</span>
+<span>    na.value <span class="op">=</span> <span class="st">"transparent"</span>,</span>
+<span>    name <span class="op">=</span> <span class="st">"Risk"</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">labs</span><span class="op">(</span></span>
+<span>    title <span class="op">=</span> <span class="st">"Surface Water Dispersal"</span>,</span>
+<span>    subtitle <span class="op">=</span> <span class="st">"Risk along connected drainage network and wetlands (blue-red overlay)"</span>,</span>
+<span>    x <span class="op">=</span> <span class="cn">NULL</span>, y <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">theme_minimal</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+</details><div class="cell-output-display">
+<div id="fig-surfacewater" class="quarto-float quarto-figure quarto-figure-center" width="672">
+<figure class="quarto-float quarto-float-fig"><div aria-describedby="fig-surfacewater-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="tutorial_files/figure-html/fig-surfacewater-1.png" id="fig-surfacewater" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-surfacewater-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure 4
+</figcaption></figure>
+</div>
+</div>
+</div>
+</section><section class="level3"><h3 id="animal-mediated-dispersal-mec_zoospread">4. Animal-Mediated Dispersal (<code>mec_zoospread</code>)<a class="anchor" aria-label="anchor" href="#animal-mediated-dispersal-mec_zoospread"></a>
+</h3>
+<p>Animals — particularly wild boar and livestock — can mechanically transport Pc-infested soil on their hooves or fur. The function simulates animal trajectories using a random-walk model: each animal starts from a random position within the study area and moves step-by-step towards a randomly selected surface-water feature (the ecological attractant). Trajectories that pass within <code>dist</code> metres of an infection focus are considered contaminated and contribute to the risk surface.</p>
+<p>Key parameters:</p>
+<table class="table caption-top">
+<colgroup>
+<col style="width: 17%">
+<col style="width: 70%">
+<col style="width: 12%">
+</colgroup>
+<thead><tr class="header">
+<th>Parameter</th>
+<th>Description</th>
+<th>Default</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>n_animals</code></td>
+<td>Number of simulated animals per iteration</td>
+<td>5</td>
+</tr>
+<tr class="even">
+<td><code>n_steps</code></td>
+<td>Steps per trajectory</td>
+<td>100</td>
+</tr>
+<tr class="odd">
+<td><code>pixel_size</code></td>
+<td>Movement distance per step (in map units)</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<td><code>n_iter</code></td>
+<td>Number of independent simulation runs</td>
+<td>10</td>
+</tr>
+<tr class="odd">
+<td><code>dist</code></td>
+<td>Max distance from POI for a trajectory to count (m)</td>
+<td>5</td>
+</tr>
+</tbody>
+</table>
+<div>
+<blockquote>
+<p><strong>Note</strong></p>
+<p>This is an optional, stochastic module. Increase <code>n_iter</code> for more stable results; the function returns <code>NULL</code> if no trajectory falls within <code>dist</code> metres of the focus.</p>
+</blockquote>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mec_zoospread_sr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mec_zoospread.html">mec_zoospread</a></span><span class="op">(</span></span>
+<span>  aoi          <span class="op">=</span> <span class="va">aoi_sf</span>,</span>
+<span>  poi          <span class="op">=</span> <span class="va">poi_sf</span>,</span>
+<span>  mec_surfacewater <span class="op">=</span> <span class="va">mec_surface_lst</span>,</span>
+<span>  n_animals    <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>  n_steps      <span class="op">=</span> <span class="fl">50</span>,</span>
+<span>  pixel_size   <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  n_iter       <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>  dist         <span class="op">=</span> <span class="fl">10</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ── Starting animal movement simulation ──</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Simulating trajectories ■■■■■■■■■■■■■                     40% | ETA: 43s</span></span>
+<span><span class="co">#&gt; Simulating trajectories ■■■■■■■■■■■■■■■■■■■               60% | ETA: 38s</span></span>
+<span><span class="co">#&gt; Simulating trajectories ■■■■■■■■■■■■■■■■■■■■■■■■■         80% | ETA: 21s</span></span>
+<span><span class="co">#&gt; Simulating trajectories ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100% | ETA:  0s</span></span>
+<span><span class="co">#&gt; ✔ Simulation completed. 5 trajectories generated.</span></span>
+<span><span class="co">#&gt; ℹ Preparing results</span></span>
+<span><span class="co">#&gt; ✔ Success [58ms]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="va">mec_zoospread_sr</span></span>
+<span><span class="co">#&gt; class       : SpatRaster</span></span>
+<span><span class="co">#&gt; size        : 415, 366, 1  (nrow, ncol, nlyr)</span></span>
+<span><span class="co">#&gt; resolution  : 2, 2  (x, y)</span></span>
+<span><span class="co">#&gt; extent      : 332469, 333201, 4206413, 4207243  (xmin, xmax, ymin, ymax)</span></span>
+<span><span class="co">#&gt; coord. ref. : ETRS89 / UTM zone 30N (EPSG:25830)</span></span>
+<span><span class="co">#&gt; source(s)   : memory</span></span>
+<span><span class="co">#&gt; varname     : dem</span></span>
+<span><span class="co">#&gt; name        : mec_zoospread</span></span>
+<span><span class="co">#&gt; min value   :             0</span></span>
+<span><span class="co">#&gt; max value   :             1</span></span></code></pre></div>
+</div>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_spatraster</span><span class="op">(</span>data <span class="op">=</span> <span class="va">mec_zoospread_sr</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_sf</span><span class="op">(</span>data <span class="op">=</span> <span class="va">aoi_sf</span>, fill <span class="op">=</span> <span class="cn">NA</span>, color <span class="op">=</span> <span class="st">"grey30"</span>, linewidth <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_sf</span><span class="op">(</span>data <span class="op">=</span> <span class="va">poi_sf</span>, color <span class="op">=</span> <span class="st">"red"</span>, size <span class="op">=</span> <span class="fl">3</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">scale_fill_gradient</span><span class="op">(</span></span>
+<span>    low <span class="op">=</span> <span class="st">"#F7FBFF"</span>, high <span class="op">=</span> <span class="st">"#F5B8AB"</span>,</span>
+<span>    na.value <span class="op">=</span> <span class="st">"transparent"</span>,</span>
+<span>    name <span class="op">=</span> <span class="st">"Risk"</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">labs</span><span class="op">(</span></span>
+<span>    title <span class="op">=</span> <span class="st">"Animal-Mediated Dispersal"</span>,</span>
+<span>    subtitle <span class="op">=</span> <span class="st">"Risk surface derived from simulated animal trajectories"</span>,</span>
+<span>    x <span class="op">=</span> <span class="cn">NULL</span>, y <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">theme_minimal</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+</details><div class="cell-output-display">
+<div id="fig-zoospread" class="quarto-float quarto-figure quarto-figure-center" width="672">
+<figure class="quarto-float quarto-float-fig"><div aria-describedby="fig-zoospread-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="tutorial_files/figure-html/fig-zoospread-1.png" id="fig-zoospread" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-zoospread-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure 5
+</figcaption></figure>
+</div>
+</div>
+</div>
+</section></section><section class="level2"><h2 id="ensemble-risk">Ensemble Risk<a class="anchor" aria-label="anchor" href="#ensemble-risk"></a>
+</h2>
+<p>The individual mechanism outputs are combined into a single invasion risk surface using <code><a href="../reference/phytorisk_ensemble.html">phytorisk_ensemble()</a></code>. By default, equal weights are assigned to each active mechanism:</p>
+<p><span class="math display">\[
+\text{Risk} = \sum_{i=1}^{n} w_i \cdot \text{Mec}_i, \quad w_i = \frac{1}{n}
+\]</span></p>
+<p>You can override this with a custom numeric vector that sums to 1. Here we use equal weights across all four mechanisms, then compare with a scenario that emphasises root-to-root contact and soil water pathways.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## equal weights (default)</span></span>
+<span><span class="va">ensemble_equal_sr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/phytorisk_ensemble.html">phytorisk_ensemble</a></span><span class="op">(</span></span>
+<span>  mec_soilwater    <span class="op">=</span> <span class="va">mec_soilwater_sr</span>,</span>
+<span>  mec_rootcontact  <span class="op">=</span> <span class="va">mec_rootcontact_sr</span>,</span>
+<span>  mec_surfacewater <span class="op">=</span> <span class="va">mec_surface_lst</span>,</span>
+<span>  mec_zoospread    <span class="op">=</span> <span class="va">mec_zoospread_sr</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">ensemble_equal_sr</span></span>
+<span><span class="co">#&gt; class       : SpatRaster</span></span>
+<span><span class="co">#&gt; size        : 415, 366, 1  (nrow, ncol, nlyr)</span></span>
+<span><span class="co">#&gt; resolution  : 2, 2  (x, y)</span></span>
+<span><span class="co">#&gt; extent      : 332469, 333201, 4206413, 4207243  (xmin, xmax, ymin, ymax)</span></span>
+<span><span class="co">#&gt; coord. ref. : ETRS89 / UTM zone 30N (EPSG:25830)</span></span>
+<span><span class="co">#&gt; source(s)   : memory</span></span>
+<span><span class="co">#&gt; name        : ensemble_risk</span></span>
+<span><span class="co">#&gt; min value   :             0</span></span>
+<span><span class="co">#&gt; max value   :          0.75</span></span></code></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## expert-informed weights: emphasise root contact and soil water</span></span>
+<span><span class="va">ensemble_weighted_sr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/phytorisk_ensemble.html">phytorisk_ensemble</a></span><span class="op">(</span></span>
+<span>  mec_soilwater    <span class="op">=</span> <span class="va">mec_soilwater_sr</span>,</span>
+<span>  mec_rootcontact  <span class="op">=</span> <span class="va">mec_rootcontact_sr</span>,</span>
+<span>  mec_surfacewater <span class="op">=</span> <span class="va">mec_surface_lst</span>,</span>
+<span>  mec_zoospread    <span class="op">=</span> <span class="va">mec_zoospread_sr</span>,</span>
+<span>  weights          <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.35</span>, <span class="fl">0.35</span>, <span class="fl">0.20</span>, <span class="fl">0.10</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_spatraster</span><span class="op">(</span>data <span class="op">=</span> <span class="va">ensemble_equal_sr</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_sf</span><span class="op">(</span>data <span class="op">=</span> <span class="va">aoi_sf</span>, fill <span class="op">=</span> <span class="cn">NA</span>, color <span class="op">=</span> <span class="st">"white"</span>, linewidth <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_sf</span><span class="op">(</span>data <span class="op">=</span> <span class="va">poi_sf</span>, color <span class="op">=</span> <span class="st">"white"</span>, size <span class="op">=</span> <span class="fl">3</span>, shape <span class="op">=</span> <span class="fl">21</span>,</span>
+<span>          fill <span class="op">=</span> <span class="st">"white"</span>, stroke <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">scale_fill_viridis_c</span><span class="op">(</span></span>
+<span>    option <span class="op">=</span> <span class="st">"magma"</span>,</span>
+<span>    name <span class="op">=</span> <span class="st">"Risk (0–1)"</span>,</span>
+<span>    na.value <span class="op">=</span> <span class="st">"transparent"</span>,</span>
+<span>    limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">labs</span><span class="op">(</span></span>
+<span>    title <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu">italic</span><span class="op">(</span><span class="st">"Phytophthora cinnamomi"</span><span class="op">)</span> <span class="op">~</span> <span class="st">"— Ensemble Risk"</span><span class="op">)</span>,</span>
+<span>    subtitle <span class="op">=</span> <span class="st">"Equal-weight combination of four dispersal mechanisms"</span>,</span>
+<span>    x <span class="op">=</span> <span class="cn">NULL</span>, y <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">theme_minimal</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">theme</span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"right"</span><span class="op">)</span></span></code></pre></div>
+</details><div class="cell-output-display">
+<div id="fig-ensemble" class="quarto-float quarto-figure quarto-figure-center" width="672">
+<figure class="quarto-float quarto-float-fig"><div aria-describedby="fig-ensemble-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="tutorial_files/figure-html/fig-ensemble-1.png" id="fig-ensemble" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-ensemble-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure 6
+</figcaption></figure>
+</div>
+</div>
+</div>
+</section><section class="level2"><h2 id="smoothing-the-result">Smoothing the Result<a class="anchor" aria-label="anchor" href="#smoothing-the-result"></a>
+</h2>
+<p>Because each dispersal mechanism produces a binary raster (0 = no risk, 1 = risk), the raw ensemble surface has hard edges. Applying a Gaussian focal filter replaces each pixel value with a weighted average of its neighbourhood, where the weights decay with distance following a normal distribution. This produces a continuous risk gradient that better reflects the spatial uncertainty inherent in each mechanism and makes the final map more interpretable.</p>
+<p>The kernel is controlled by two parameters:</p>
+<ul>
+<li>
+<strong><code>size</code></strong> — the width (and height) of the neighbourhood window in pixels. A value of 5 means each output pixel is influenced by a 5×5 block of input pixels.</li>
+<li>
+<strong><code>sigma</code></strong> (<span class="math inline">\(\sigma\)</span>) — the standard deviation of the Gaussian, expressed in pixels. Larger values spread the influence further from the centre, producing a smoother surface at the cost of spatial precision.</li>
+</ul>
+<p>The weights <span class="math inline">\(w_{ij}\)</span> at row <span class="math inline">\(i\)</span>, column <span class="math inline">\(j\)</span> of the kernel are:</p>
+<p><span class="math display">\[
+w_{ij} = \frac{1}{Z} \exp\!\left(-\frac{(i - c)^2 + (j - c)^2}{2\,\sigma^2}\right)
+\]</span></p>
+<p>where <span class="math inline">\(c\)</span> is the centre index and <span class="math inline">\(Z\)</span> is a normalisation constant that ensures the weights sum to 1. The normalised kernel is then passed to <code><a href="https://rspatial.github.io/terra/reference/focal.html" class="external-link">terra::focal()</a></code> with <code>fun = "sum"</code>, which is equivalent to a weighted mean.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## Function to create a Gaussian kernel</span></span>
+<span><span class="va">gaussian_kernel</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">size</span>, <span class="va">sigma</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">k</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">floor</a></span><span class="op">(</span><span class="va">size</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span></span>
+<span>  <span class="va">mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">size</span>, <span class="va">size</span><span class="op">)</span></span>
+<span>  <span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="va">size</span><span class="op">)</span> <span class="kw">for</span> <span class="op">(</span><span class="va">j</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="va">size</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">mat</span><span class="op">[</span><span class="va">i</span>, <span class="va">j</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="op">(</span><span class="op">(</span><span class="va">i</span> <span class="op">-</span> <span class="va">k</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span> <span class="op">+</span> <span class="op">(</span><span class="va">j</span> <span class="op">-</span> <span class="va">k</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">sigma</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">}</span></span>
+<span>  <span class="va">mat</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="co">## Generate a 5×5 Gaussian kernel (sigma = 2) and apply focal smoothing</span></span>
+<span><span class="va">w</span> <span class="op">&lt;-</span> <span class="fu">gaussian_kernel</span><span class="op">(</span>size <span class="op">=</span> <span class="fl">5</span>, sigma <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">ensemble_smooth_sr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/focal.html" class="external-link">focal</a></span><span class="op">(</span><span class="va">ensemble_equal_sr</span>, w <span class="op">=</span> <span class="va">w</span>, fun <span class="op">=</span> <span class="st">"sum"</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_spatraster</span><span class="op">(</span>data <span class="op">=</span> <span class="va">ensemble_smooth_sr</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_sf</span><span class="op">(</span>data <span class="op">=</span> <span class="va">aoi_sf</span>, fill <span class="op">=</span> <span class="cn">NA</span>, color <span class="op">=</span> <span class="st">"white"</span>, linewidth <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_sf</span><span class="op">(</span>data <span class="op">=</span> <span class="va">poi_sf</span>, color <span class="op">=</span> <span class="st">"white"</span>, size <span class="op">=</span> <span class="fl">3</span>, shape <span class="op">=</span> <span class="fl">21</span>,</span>
+<span>          fill <span class="op">=</span> <span class="st">"white"</span>, stroke <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">scale_fill_viridis_c</span><span class="op">(</span></span>
+<span>    option <span class="op">=</span> <span class="st">"magma"</span>,</span>
+<span>    name <span class="op">=</span> <span class="st">"Risk (0–1)"</span>,</span>
+<span>    na.value <span class="op">=</span> <span class="st">"transparent"</span>,</span>
+<span>    limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">labs</span><span class="op">(</span></span>
+<span>    title <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu">italic</span><span class="op">(</span><span class="st">"Phytophthora cinnamomi"</span><span class="op">)</span> <span class="op">~</span> <span class="st">"— Ensemble Risk"</span><span class="op">)</span>,</span>
+<span>    subtitle <span class="op">=</span> <span class="st">"Equal-weight combination of four dispersal mechanisms"</span>,</span>
+<span>    x <span class="op">=</span> <span class="cn">NULL</span>, y <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">theme_minimal</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">theme</span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"right"</span><span class="op">)</span></span></code></pre></div>
+</details><div class="cell-output-display">
+<div id="fig-ensemble-smooth" class="quarto-float quarto-figure quarto-figure-center" width="672">
+<figure class="quarto-float quarto-float-fig"><div aria-describedby="fig-ensemble-smooth-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="tutorial_files/figure-html/fig-ensemble-smooth-1.png" id="fig-ensemble-smooth" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-ensemble-smooth-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure 7
+</figcaption></figure>
+</div>
+</div>
+</div>
+</section><script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
@@ -175,7 +674,8 @@
       }
     }
   });
-  </script></main>
+  </script></main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 
