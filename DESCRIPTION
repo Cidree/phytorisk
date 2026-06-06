@@ -20,9 +20,11 @@ Imports:
     withr
 Suggests:
     flowdem (>= 0.2),
+    ggplot2,
     knitr,
     quarto,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    tidyterra
 Config/Needs/website: KennethTM/flowdem
 RoxygenNote: 7.3.3
 Roxygen: list(markdown = TRUE)

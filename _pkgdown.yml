@@ -28,7 +28,7 @@ navbar:
       href: reference/index.html
     - text: Tutorials
       menu:
-      - text: Tutorial 1
+      - text: Introduction to Phytorisk
         href: articles/tutorial.html
     - text: "News"
       href: news/index.html
