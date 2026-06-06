@@ -14,3 +14,4 @@ internal
 ^vignettes/*_files$
 ^doc$
 ^Meta$
+^\.claude$

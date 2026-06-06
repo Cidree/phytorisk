@@ -54,6 +54,36 @@ A \code{SpatRaster}
 \description{
 Calculates Phytophthora cinnamomi's ensemble risk from raw data
 }
+\details{
+This function is a one-step convenience wrapper around the four dispersal
+mechanism functions and \link{phytorisk_ensemble}. It runs the following pipeline
+internally:
+
+\enumerate{
+\item \link{mec_soilwater} — models \emph{Pc} spread through soil water pathways
+using flow direction and accumulation derived from \code{dem}. The
+\code{th} argument controls the flow-accumulation threshold used to
+delineate streams.
+\item \link{mec_rootcontact} — models root-to-root transmission across a
+3×3 spatial window over the \code{treecover} raster within \code{aoi}.
+\item \link{mec_surfacewater} — models surface water spread using the
+Topographic Wetness Index derived from \code{dem}. It receives the output
+of \link{mec_soilwater} directly; \code{buffer} extends the detected
+water bodies before computing risk.
+\item \link{mec_zoospread} (optional) — simulates animal-mediated dispersal
+trajectories within \code{aoi}. Only executed when
+\code{include_zoospread = TRUE}; additional arguments via \code{...} are
+forwarded to this function.
+}
+
+The four mechanism outputs are then combined by \link{phytorisk_ensemble} into a
+single ensemble risk surface. See \link{phytorisk_ensemble} for details on how
+\code{weights} are applied.
+
+When \code{append_mec = TRUE} the individual mechanism rasters are
+concatenated with the ensemble layer in the returned \code{SpatRaster},
+allowing inspection of each component alongside the final risk surface.
+}
 \examples{
 \donttest{
 ## load packages
