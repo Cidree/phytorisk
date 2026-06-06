@@ -21,9 +21,11 @@ Imports:
 Suggests:
     flowdem (>= 0.2),
     knitr,
-    quarto
+    quarto,
+    testthat (>= 3.0.0)
 Config/Needs/website: KennethTM/flowdem
 RoxygenNote: 7.3.3
 Roxygen: list(markdown = TRUE)
 URL: https://cidree.github.io/phytorisk/
 VignetteBuilder: quarto
+Config/testthat/edition: 3
