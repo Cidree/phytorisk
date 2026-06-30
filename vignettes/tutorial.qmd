@@ -118,7 +118,7 @@ ggplot() +
 And now the study area and infection foci including the tree cover:
 
 ```{r}
-#| label: fig-data
+#| label: fig-data2
 #| code-fold: true
 ggplot() +
   geom_spatraster(data = as.factor(trees_sr)) +
@@ -296,7 +296,7 @@ risk surface.
 Key parameters:
 
 | Parameter    | Description                                         | Default |
-|----------------|----------------------------------------|----------------|
+|------------------|-------------------------------------|------------------|
 | `n_animals`  | Number of simulated animals per iteration           | 5       |
 | `n_steps`    | Steps per trajectory                                | 100     |
 | `pixel_size` | Movement distance per step (in map units)           | 1       |
@@ -315,7 +315,7 @@ mec_zoospread_sr <- mec_zoospread(
   aoi          = aoi_sf,
   poi          = poi_sf,
   mec_surfacewater = mec_surface_lst,
-  n_animals    = 10,
+  n_animals    = 5,
   n_steps      = 50,
   pixel_size   = 1,
   n_iter       = 5,
